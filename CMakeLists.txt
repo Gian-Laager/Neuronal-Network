@@ -5,11 +5,15 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(SRC
         src/Neural_Network.cpp
+        src/Neuron.cpp
 )
 
 set(HEAD
-
-        include/Neural_Network.h)
+        include/Neural_Network.h
+        include/abstract.h
+        include/abstract/Neuron.h
+        include/Neuron.h
+)
 
 set(PCH
         include/pch.h
@@ -27,10 +31,11 @@ target_precompile_headers(${PROJECT_NAME} PUBLIC ${PCH})
 
 set(TEST_SRC
         test/src/test/main.cpp
+        test/src/test/Neuron.cpp
 )
 
 set(TEST_HEAD
-
+        test/include/test/Neuron.h
 )
 
 set(TEST_PCH
