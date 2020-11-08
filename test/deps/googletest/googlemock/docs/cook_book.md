@@ -37,6 +37,9 @@ generated method:
     `noexcept` method.
 *   **`Calltype(...)`** - Sets the call type for the method (e.g. to
     `STDMETHODCALLTYPE`), useful in Windows.
+*   **`ref(...)`** - Marks the method with the reference qualification
+    specified. Required if overriding a method that has reference
+    qualifications. Eg `ref(&)` or `ref(&&)`.
 
 ### Dealing with unprotected commas
 
@@ -857,6 +860,22 @@ using ::testing::Not;
   // The first argument must not contain sub-string "blah".
   EXPECT_CALL(foo, DoThat(Not(HasSubstr("blah")),
                           NULL));
+```
+
+Matchers are function objects, and parametrized matchers can be composed just
+like any other function. However because their types can be long and rarely
+provide meaningful information, it can be easier to express them with C++14
+generic lambdas to avoid specifying types. For example,
+
+```cpp
+using ::testing::Contains;
+using ::testing::Property;
+
+inline constexpr auto HasFoo = [](const auto& f) {
+  return Property(&MyClass::foo, Contains(f));
+};
+...
+  EXPECT_THAT(x, HasFoo("blah"));
 ```
 
 ### Casting Matchers {#SafeMatcherCast}
