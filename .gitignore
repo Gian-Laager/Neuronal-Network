@@ -57,3 +57,4 @@ _deps
 #   Mac Os
 
 *.DS_Store
+*.idea/
