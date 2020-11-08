@@ -1,0 +1,118 @@
+#! /bin/bash -vx
+
+# Publish the Doxygen API of SYCL on GitHub
+
+# Ronan Keryell at Xilinx point COM
+
+# Publish on GitHub the API for the master branch of this git repository.
+
+# This script is to be used in the top-level directory of the git
+# repository.
+# Everything is quite hard-coded but it is not to be used outside of the
+# web-site maintenance...
+
+
+# Recycle some ideas used in the publication of the Par4All web-site on
+# GitHub https://github.com/Par4All/par4all
+
+# Exit if an error occurs rather than unspecified dangerous behaviour...
+set -e
+
+# Move a Doxygen documentation at the right place
+update_doc() {
+  # First argument: where the doc is published
+  PUB_DIR=$1
+  # Second argument: the name of the PDF version output
+  PDF_NAME=$2
+  # Where the doc is generated
+  DOXYGEN_DIR=tmp/$PUB_DIR
+
+  # Remove the old version, if any
+  rm -rf $PUB_DIR
+  mkdir -p $PUB_DIR
+  cp -a $DOXYGEN_DIR/html $PUB_DIR
+
+  # Add the PDF documentation at the top level of SYCL API
+  cp $DOXYGEN_DIR/latex/refman.pdf $PUB_DIR/$PDF_NAME
+
+  # Add the generated directory to the index
+  git add $PUB_DIR
+}
+
+# Use another copy of the git repository to avoid messing up with the
+# state of the current repository
+tmp_git=tmp_publish_github_pages
+
+# Work in a new working copy of the repository to compile the WWW pages
+rm -rf $tmp_git
+# Assume we are in the top directory of the reference repository so we can
+# clone it
+git clone . $tmp_git
+cd $tmp_git
+
+# Build the API web pages with Doxygen from this repository to be sure we
+# have the state of the master branch without uncommitted files
+make doc-clean
+make doc
+
+# The special gh-pages branch is used by GitHub as the GitHub Pages WWW
+# site.
+# (Assume a previous initialization with git checkout --orphan gh-pages)
+git checkout gh-pages
+
+# Clean up any previously generated Doxygen from the current history
+rm -rf Doxygen
+mkdir Doxygen
+
+# Move the generated documentation at the right place
+#update_doc Doxygen/SYCL SYCL-API-refman.pdf
+update_doc Doxygen/triSYCL triSYCL-implementation-refman.pdf
+
+# Take also into account what has been deleted
+git add --update
+
+# Add the home page which comes from the master branch
+git checkout master -- doc/WWW/index.html
+cp doc/WWW/index.html .
+git add index.html
+# Remove this file added by the check-out above from the files to be
+# committed
+git reset HEAD doc/WWW/index.html
+
+# Create a snapshot of the index content
+tree_object=`git write-tree`
+
+# Construct a log message with the list of commits since the previous
+# publication
+(
+    echo "Publish new WWW site version"
+    echo
+    echo "The list of commits since last publication:"
+    echo
+    # gh-pages point to the current published version, which is the old
+    # one.  gh-pages^2 is the second parent of the old one, and thus the
+    # master used for this old publication. master point to the last
+    # commit to be taken for publishing, so the following list all the
+    # commits between master and the previous master used for the old
+    # publication
+    git log gh-pages^2..master
+) > commit_list
+
+# Create a commit object that takes into account its natural history but
+# also the master branch as an ancestor so we can figure out easily which
+# source of the WWW site is currently published
+commit_object=`git commit-tree -p HEAD -p master \
+  -F commit_list $tree_object`
+
+# Update the gh-pages branch to this commit object. By construction this
+# is not a merge, it is just a fast-forward update, but add --ff-only to
+# assert this
+git merge --ff-only $commit_object
+
+# Update the gh-pages branch on the reference git repository
+git push
+
+echo To do the publication, just push the gh-pages branch on GitHub
+echo https://github.com/triSYCL/triSYCL/tree/gh-pages
+echo
+echo To revert this generation: git branch -f gh-pages gh-pages^

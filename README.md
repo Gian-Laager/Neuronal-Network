@@ -1,1 +1,1 @@
-Neuronal Network
+Neural Network
