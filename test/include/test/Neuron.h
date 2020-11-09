@@ -10,9 +10,15 @@ namespace nn::test
     class Neuron : public testing::Test
     {
     public:
-        std::vector<nn::Connection*> connectionsNextLayer = {new Connection{nullptr}, new Connection{nullptr}, new Connection{nullptr}, new Connection{nullptr}, new Connection{nullptr}};
-        std::vector<nn::Connection*> connectionsPreviousLayer = {new Connection{nullptr}, new Connection{nullptr}, new Connection{nullptr}, new Connection{nullptr}};
         nn::Neuron n;
+        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer = {
+                {nullptr, std::make_shared<Connection>(nullptr)}, {nullptr, std::make_shared<Connection>(nullptr)}, 
+                {nullptr, std::make_shared<Connection>(nullptr)}, {nullptr, std::make_shared<Connection>(nullptr)}, 
+                {nullptr, std::make_shared<Connection>(nullptr)}};
+        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer = {
+                {nullptr, std::make_shared<Connection>(nullptr)}, {nullptr, std::make_shared<Connection>(nullptr)},
+                {nullptr, std::make_shared<Connection>(nullptr)}, {nullptr, std::make_shared<Connection>(nullptr)},
+                {nullptr, std::make_shared<Connection>(nullptr)}};
 
         void SetUp() override;
     };
