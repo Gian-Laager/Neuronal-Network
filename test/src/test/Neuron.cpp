@@ -51,7 +51,6 @@ TEST_F(Neuron, GetValue2Neurons_WillReturnRightValue)
     double w = 0.5;
     double b = 10.0;
     std::function<double(double)> activationF = [](double z) -> double { return 1 / (1 + exp(-z)); };
-//    std::function<double(double)> activationF = [](double z) -> double { return 0 < z ? z : 0; };
 
     n1.setActivation(activationF);
     n0.getConnectionsNextLayer()[&n1]->w = w;
