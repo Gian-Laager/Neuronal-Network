@@ -5,7 +5,9 @@ namespace nn::test
 {
     class Network : public testing::Test
     {
-
+    public:
+        int initialNumberOfLayers = 5;
+        nn::Network network{initialNumberOfLayers};
     };
 }
 

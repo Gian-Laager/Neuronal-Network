@@ -58,15 +58,7 @@ namespace nn
 
         void setActivation(std::function<double(double)> f) override;
 
-        class IncompatibleVectorException : public std::exception
-        {
-        public:
-            std::string message;
-
-            const char* what() const noexcept override;
-
-            IncompatibleVectorException(std::string msg);
-        };
+        EXCEPTION(IncompatibleVectorException);
     };
 }
 
@@ -190,16 +182,16 @@ void nn::BeginLayer<NeuronType>::setNeurons(std::vector<std::shared_ptr<nn::abs:
     neurons = std::move(n);
 }
 
-template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-nn::BeginLayer<NeuronType>::IncompatibleVectorException::IncompatibleVectorException(std::string msg) : message(
-        std::move(msg)) {}
+//template<typename NeuronType>
+//requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
+//nn::BeginLayer<NeuronType>::IncompatibleVectorException::IncompatibleVectorException(std::string msg) : message(
+//        std::move(msg)) {}
 
-template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-const char* nn::BeginLayer<NeuronType>::IncompatibleVectorException::what() const noexcept
-{
-    return message.c_str();
-}
+//template<typename NeuronType>
+//requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
+//const char* nn::BeginLayer<NeuronType>::IncompatibleVectorException::what() const noexcept
+//{
+//    return message.c_str();
+//}
 
 #endif //NEURONAL_NETWORK_LAYER_H

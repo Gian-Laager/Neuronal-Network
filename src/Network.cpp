@@ -1,2 +1,61 @@
 #include "Network.h"
 
+nn::Network::Network(int initialNumberOfLayers)
+{
+    layers.reserve(initialNumberOfLayers);
+}
+
+int nn::Network::getNumberOfLayers() const
+{
+    return size;
+}
+
+void nn::Network::pushLayer(std::shared_ptr<nn::abs::Layer> l)
+{
+    if (size == 0 && !isBeginLayer(l))
+        throw InvalidFirstLayerException("The first layer that is being pushed must derive from nn::abs::BeginLayer");
+
+    if (size != 0 && isBeginLayer(l))
+        std::cout << "[nn::Network::pushLayer] WARNING: The layer that is being pushed is of type nn::abs::BeginLayer, "
+                     "that means the values before that layer can't be passed through this layer";
+
+    layers.push_back(l);
+    size++;
+}
+
+bool nn::Network::isBeginLayer(const std::shared_ptr<nn::abs::Layer>& l) const { return dynamic_cast<nn::abs::BeginLayer*>(l.get()); }
+
+int nn::Network::getCapacityOfLayers() const
+{
+    return layers.capacity();
+}
+
+nn::Network::Network(int initialNumberOfLayers, const std::shared_ptr<nn::abs::BeginLayer>& firstLayer) : layers(
+        initialNumberOfLayers)
+{
+    nn::Network::pushLayer(firstLayer);
+}
+
+nn::Network::Network(std::shared_ptr<nn::abs::BeginLayer> firstLayer)
+{
+    nn::Network::pushLayer(firstLayer);
+}
+
+nn::Network::Network(const std::shared_ptr<nn::abs::BeginLayer>& firstLayer, std::vector<std::shared_ptr<nn::abs::Layer>> layers)
+{
+    nn::Network::pushLayer(firstLayer);
+    this->layers.insert(this->layers.end(), layers.begin(), layers.end());
+    size += layers.size();
+}
+
+void nn::Network::setInputs(std::vector<double> values)
+{
+    if (size <= 0)
+        NoLayersGivenException{"No layers were pushed, use pushLayer to add a layer"};
+    dynamic_cast<nn::abs::BeginLayer*>(layers[0].get())->setValues(values);
+}
+
+std::shared_ptr<nn::abs::Layer> nn::Network::getLayer(int index)
+{
+    return layers[index];
+}
