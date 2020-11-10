@@ -1,7 +1,5 @@
 #include "Neuron.h"
 
-#include <utility>
-
 nn::Neuron::Neuron(std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer,
                    std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer) {}
 
@@ -77,4 +75,34 @@ nn::BeginNeuron::BeginNeuron(double v)
           value(v)
 {
 
+}
+
+std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> nn::BeginNeuron::getConnectionsNextLayer()
+{
+    return nn::Neuron::getConnectionsNextLayer();
+}
+
+void nn::BeginNeuron::connect(nn::abs::Neuron* n)
+{
+    nn::Neuron::connect(n);
+}
+
+std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> nn::BeginNeuron::getConnectionsPreviousLayer()
+{
+    return nn::Neuron::getConnectionsPreviousLayer();
+}
+
+double nn::BeginNeuron::getB() const
+{
+    return nn::Neuron::getB();
+}
+
+void nn::BeginNeuron::setB(double b)
+{
+    nn::Neuron::setB(b);
+}
+
+void nn::BeginNeuron::setActivation(std::function<double(double)> f)
+{
+    nn::Neuron::setActivation(f);
 }

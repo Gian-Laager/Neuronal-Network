@@ -12,8 +12,6 @@ namespace nn::abs
 
     class Neuron
     {
-    protected:
-        double b = 0.0;
     public:
         virtual std::map<Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsNextLayer() = 0;
 
@@ -26,6 +24,14 @@ namespace nn::abs
         virtual double getB() const = 0;
 
         virtual void setB(double b) = 0;
+
+        virtual void setActivation(std::function<double(double)> f) = 0;
+    };
+
+    class BeginNeuron : public virtual nn::abs::Neuron
+    {
+    public:
+        virtual void setValue(double v) = 0;
     };
 }
 

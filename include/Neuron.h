@@ -18,8 +18,8 @@ namespace nn
     class Neuron : public nn::abs::Neuron
     {
     protected:
-//        std::vector<std::shared_ptr<nn::abs::Connection>> connectionsNextLayer;
-//        std::vector<std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer;
+        double b = 0.0;
+
         std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer;
         std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer;
         std::function<double(double)> activationFunction = [](double z) -> double { return z; };
@@ -42,10 +42,10 @@ namespace nn
 
         void setB(double b) override;
 
-        void setActivation(std::function<double(double)> f);
+        void setActivation(std::function<double(double)> f) override;
     };
 
-    class BeginNeuron : public nn::Neuron
+    class BeginNeuron : public nn::Neuron, public nn::abs::BeginNeuron
     {
         double value = 0.0;
     public:
@@ -57,9 +57,21 @@ namespace nn
 
         BeginNeuron() = default;
 
+        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsNextLayer() override;
+
+        void connect(nn::abs::Neuron* n) override;
+
+        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsPreviousLayer() override;
+
+        double getB() const override;
+
+        void setB(double b) override;
+
+        void setActivation(std::function<double(double)> f) override;
+
         double getValue() const override;
 
-        void setValue(double v);
+        void setValue(double v) override;
     };
 }
 
