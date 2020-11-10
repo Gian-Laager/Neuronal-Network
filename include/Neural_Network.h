@@ -6,4 +6,6 @@
 #include "Neuron.h"
 #include "Layer.h"
 
+void test();
+
 #endif //NEURONAL_NETWORK_NEURAL_NETWORK_H

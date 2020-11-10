@@ -13,6 +13,8 @@ namespace nn::test
     public:
         int numberOfNeurons = 4;
         nn::Layer<nn::Neuron> layer = {numberOfNeurons};
+
+        static std::function<double(double)> getActivation(nn::Neuron* n);
     };
 }
 

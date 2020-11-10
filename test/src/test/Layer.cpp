@@ -1,6 +1,6 @@
 #include "test/Layer.h"
 
-using namespace nn::test;
+using nn::test::Layer;
 
 TEST_F(Layer, Constructor_WillNumberOfNeuronsSetRightNeuronsSize)
 {
@@ -9,7 +9,7 @@ TEST_F(Layer, Constructor_WillNumberOfNeuronsSetRightNeuronsSize)
 
 TEST_F(Layer, Connect_WillEveryNeuronBeConnectedToTheNeuronsInTheNextLayer)
 {
-    nn::Layer<nn::Neuron> l2{8};
+    nn::Layer<nn::Neuron> l2 = {8};
     layer.connect(&l2);
 
     for (auto& nInLayer : layer.getNeurons())
@@ -37,4 +37,37 @@ TEST_F(Layer, Connect_WillEveryNeuronBeConnectedToTheNeuronsInTheNextLayer)
         }
         ASSERT_TRUE(connectedToAll);
     }
+}
+
+TEST_F(Layer, WillSetActivationSetActivationsOfEveryNeuron)
+{
+    std::function<double(double)> f = [](double z) -> double { return z; };
+    layer.setActivation(f);
+
+    for (auto& n : layer.getNeurons())
+        ASSERT_EQ(getActivation((nn::Neuron*) n.get())(5.0), f(5.0));
+}
+
+std::function<double(double)> Layer::getActivation(nn::Neuron* n)
+{
+    return *(std::function<double(double)>*) ((long) n + 64);
+}
+
+TEST_F(Layer, SetValues_WillThrowWhenVectorIsInvalidSize)
+{
+    int size = 4;
+    nn::BeginLayer<nn::BeginNeuron> l = {size};
+
+    ASSERT_THROW(l.setValues(std::vector<double>(size + 1)), nn::BeginLayer<nn::BeginNeuron>::IncompatibleVectorException);
+    ASSERT_NO_THROW(l.setValues(std::vector<double>(size)));
+}
+
+TEST_F(Layer, SetValues_WillSetValuesCorectly)
+{
+     std::vector<double> values = {1.0, 2.0, 3.0, 4.0};
+     nn::BeginLayer<nn::BeginNeuron> l = {(int) values.size()};
+     l.setValues(values);
+
+     for (int i = 0; i < l.getSize(); i++)
+         ASSERT_EQ(l.getNeurons()[i]->getValue(), values[i]);
 }

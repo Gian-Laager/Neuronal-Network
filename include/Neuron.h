@@ -45,7 +45,7 @@ namespace nn
         void setActivation(std::function<double(double)> f) override;
     };
 
-    class BeginNeuron : public nn::Neuron, public nn::abs::BeginNeuron
+class BeginNeuron : public nn::abs::BeginNeuron, public nn::Neuron
     {
         double value = 0.0;
     public:
