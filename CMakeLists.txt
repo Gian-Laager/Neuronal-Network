@@ -7,7 +7,8 @@ set(SRC
         src/Neural_Network.cpp
         src/Neuron.cpp
         src/Layer.cpp
-        )
+        src/Network.cpp
+)
 
 set(HEAD
         include/Neural_Network.h
@@ -16,7 +17,9 @@ set(HEAD
         include/Neuron.h
         include/abstract/Layer.h
         include/Layer.h
-        )
+        include/abstract/Network.h
+        include/Network.h
+)
 
 set(PCH
         include/pch.h
@@ -36,12 +39,14 @@ set(TEST_SRC
         test/src/test/main.cpp
         test/src/test/Neuron.cpp
         test/src/test/Layer.cpp
-        )
+        test/src/test/Network.cpp
+)
 
 set(TEST_HEAD
         test/include/test/Neuron.h
         test/include/test/Layer.h
-        )
+        test/include/test/Network.h
+)
 
 set(TEST_PCH
         test/include/test/pch.h
