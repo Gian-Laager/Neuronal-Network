@@ -43,9 +43,12 @@ namespace nn
         void setB(double b) override;
 
         void setActivation(std::function<double(double)> f) override;
+
+    private:
+        double multiplyPreviousLayersResultsByWeights() const;
     };
 
-class BeginNeuron : public nn::abs::BeginNeuron, public nn::Neuron
+    class BeginNeuron : public nn::abs::BeginNeuron, public nn::Neuron
     {
         double value = 0.0;
     public:

@@ -3,6 +3,8 @@
 
 #include "abstract/Layer.h"
 
+#include <utility>
+
 namespace nn
 {
     template<typename NeuronType>
@@ -13,10 +15,11 @@ namespace nn
         std::vector<std::shared_ptr<nn::abs::Neuron>> neurons;
 
     public:
-
         Layer(int numberOfNeurons);
 
         Layer(std::vector<std::shared_ptr<nn::abs::Neuron>> neurons);
+
+        Layer() = default;
 
         int getSize() const override;
 
@@ -36,6 +39,12 @@ namespace nn
 
     public:
         BeginLayer(int numberOfNeurons);
+
+        BeginLayer() = default;
+
+        void setNeuron(int index, std::shared_ptr<nn::abs::BeginNeuron> n);
+
+        void setNeurons(std::vector<std::shared_ptr<nn::abs::BeginNeuron>> n);
 
         void setValues(const std::vector<double>& v) override;
 
@@ -163,7 +172,22 @@ template<typename NeuronType>
 requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
 void nn::BeginLayer<NeuronType>::setActivation(std::function<double(double)> f)
 {
+    for (auto& n : neurons)
+        n->setActivation(f);
+}
 
+template<typename NeuronType>
+requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
+void nn::BeginLayer<NeuronType>::setNeuron(int index, std::shared_ptr<nn::abs::BeginNeuron> n)
+{
+    neurons[index] = std::move(n);
+}
+
+template<typename NeuronType>
+requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
+void nn::BeginLayer<NeuronType>::setNeurons(std::vector<std::shared_ptr<nn::abs::BeginNeuron>> n)
+{
+    neurons = std::move(n);
 }
 
 template<typename NeuronType>

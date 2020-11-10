@@ -22,11 +22,17 @@ void nn::Neuron::connect(nn::abs::Neuron* n)
 
 double nn::Neuron::getValue() const
 {
-    double result = 0.0;
-    for (auto& connection : connectionsPreviousLayer)
-        result += ((nn::Connection*) connection.second.get())->from->getValue() * connection.second->w;
+    double result = multiplyPreviousLayersResultsByWeights();
     result += b;
     return activationFunction(result);
+}
+
+double nn::Neuron::multiplyPreviousLayersResultsByWeights() const
+{
+    double result = 0.0;
+    for (auto& connection : this->connectionsPreviousLayer)
+        result += ((nn::Connection*) connection.second.get())->from->getValue() * connection.second->w;
+    return result;
 }
 
 double nn::Neuron::getB() const
