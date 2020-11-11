@@ -25,12 +25,12 @@ namespace nn::abs
         virtual void resetCaches() const = 0;
     };
 
-    class BeginLayer : public Layer
+    class InputLayer : public Layer
     {
     public:
         virtual void setValues(const std::vector<double>& v) = 0;
 
-        virtual std::vector<std::shared_ptr<BeginNeuron>> getBeginNeurons() = 0;
+        virtual std::vector<std::shared_ptr<InputNeuron>> getInputNeurons() = 0;
     };
 }
 

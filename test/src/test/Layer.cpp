@@ -56,17 +56,17 @@ std::function<double(double)> Layer::getActivation(nn::Neuron* n)
 TEST_F(Layer, SetValues_WillThrowWhenVectorIsInvalidSize)
 {
     int size = 4;
-    nn::BeginLayer<nn::BeginNeuron> l = {size};
+    nn::InputLayer<nn::InputNeuron> l = {size};
 
     ASSERT_THROW(l.setValues(std::vector<double>(size + 1)),
-                 nn::BeginLayer<nn::BeginNeuron>::IncompatibleVectorException);
+                 nn::InputLayer<nn::InputNeuron>::IncompatibleVectorException);
     ASSERT_NO_THROW(l.setValues(std::vector<double>(size)));
 }
 
 TEST_F(Layer, SetValues_WillSetValuesCorectly)
 {
     std::vector<double> values = {1.0, 2.0, 3.0, 4.0};
-    nn::BeginLayer<nn::BeginNeuron> l = {(int) values.size()};
+    nn::InputLayer<nn::InputNeuron> l = {(int) values.size()};
     l.setValues(values);
 
     for (int i = 0; i < l.getSize(); i++)
@@ -84,7 +84,7 @@ TEST_F(Layer, GetNeurons_WillReturnRightPointers)
 TEST_F(Layer, GetBeginNeurons_WillReturnRightPointers)
 {
     beginLayer.setNeurons(neurons);
-    std::vector<std::shared_ptr<nn::abs::BeginNeuron>> getNeurons = beginLayer.getBeginNeurons();
+    std::vector<std::shared_ptr<nn::abs::InputNeuron>> getNeurons = beginLayer.getInputNeurons();
     for (int i = 0; i < getNeurons.size(); i++)
         ASSERT_EQ(getNeurons[i]->getValue(), neurons[i]->getValue());
 }

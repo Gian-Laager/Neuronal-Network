@@ -61,7 +61,7 @@ namespace nn
         double multiplyPreviousLayersResultsByWeights() const;
     };
 
-    class BeginNeuron : public nn::abs::BeginNeuron
+    class InputNeuron : public nn::abs::InputNeuron
     {
     protected:
         double b = 0.0;
@@ -76,13 +76,13 @@ namespace nn
 
         double value = 0.0;
     public:
-        BeginNeuron(std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer);
+        InputNeuron(std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer);
 
-        BeginNeuron(double v, std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer);
+        InputNeuron(double v, std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer);
 
-        BeginNeuron(double v);
+        InputNeuron(double v);
 
-        BeginNeuron() = default;
+        InputNeuron() = default;
 
         void resetCache() const override;
 

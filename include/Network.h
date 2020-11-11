@@ -11,18 +11,18 @@ namespace nn
         int size = 0;
         std::vector<std::shared_ptr<nn::abs::Layer>> layers;
 
-        bool isBeginLayer(const std::shared_ptr<nn::abs::Layer>& l) const;
+        bool isInputLayer(const std::shared_ptr<nn::abs::Layer>& l) const;
 
         void areLayersGiven() const;
 
     public:
         Network(int initialNumberOfLayers);
 
-        Network(int initialNumberOfLayers, const std::shared_ptr<nn::abs::BeginLayer>& firstLayer);
+        Network(int initialNumberOfLayers, const std::shared_ptr<nn::abs::InputLayer>& firstLayer);
 
-        Network(std::shared_ptr<nn::abs::BeginLayer> firstLayer);
+        Network(std::shared_ptr<nn::abs::InputLayer> firstLayer);
 
-        Network(const std::shared_ptr<nn::abs::BeginLayer>& firstLayer,
+        Network(const std::shared_ptr<nn::abs::InputLayer>& firstLayer,
                 std::vector<std::shared_ptr<nn::abs::Layer>> layers);
 
         Network() = default;

@@ -58,34 +58,34 @@ namespace nn
     };
 
     template<typename NeuronType>
-    requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-    class BeginLayer : public nn::abs::BeginLayer
+    requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+    class InputLayer : public nn::abs::InputLayer
     {
     protected:
-        std::vector<std::shared_ptr<nn::abs::BeginNeuron>> neurons;
+        std::vector<std::shared_ptr<nn::abs::InputNeuron>> neurons;
 
     public:
         void resetCaches() const override;
 
-        BeginLayer(int numberOfNeurons);
+        InputLayer(int numberOfNeurons);
 
-        BeginLayer(int numberOfNeurons, const std::function<double(double)>& f);
+        InputLayer(int numberOfNeurons, const std::function<double(double)>& f);
 
-        BeginLayer(std::vector<std::shared_ptr<nn::abs::BeginNeuron>> neurons, const std::function<double(double)>& f);
+        InputLayer(std::vector<std::shared_ptr<nn::abs::InputNeuron>> neurons, const std::function<double(double)>& f);
 
-        BeginLayer(std::vector<std::shared_ptr<nn::abs::BeginNeuron>> neurons);
+        InputLayer(std::vector<std::shared_ptr<nn::abs::InputNeuron>> neurons);
 
-        BeginLayer() = default;
+        InputLayer() = default;
 
-        void setNeuron(int index, std::shared_ptr<nn::abs::BeginNeuron> n);
+        void setNeuron(int index, std::shared_ptr<nn::abs::InputNeuron> n);
 
-        void setNeurons(std::vector<std::shared_ptr<nn::abs::BeginNeuron>> n);
+        void setNeurons(std::vector<std::shared_ptr<nn::abs::InputNeuron>> n);
 
         void setValues(const std::vector<double>& v) override;
 
         std::vector<double> calculate() const override;
 
-        std::vector<std::shared_ptr<nn::abs::BeginNeuron>> getBeginNeurons() override;
+        std::vector<std::shared_ptr<nn::abs::InputNeuron>> getInputNeurons() override;
 
         int getSize() const override;
 
@@ -206,8 +206,8 @@ void nn::Layer<NeuronType>::resetCaches() const
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-void nn::BeginLayer<NeuronType>::setValues(const std::vector<double>& v)
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+void nn::InputLayer<NeuronType>::setValues(const std::vector<double>& v)
 {
     IS_VECTOR_COMPATIBLE(v);
     for (int i = 0; i < neurons.size(); i++)
@@ -215,30 +215,30 @@ void nn::BeginLayer<NeuronType>::setValues(const std::vector<double>& v)
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-nn::BeginLayer<NeuronType>::BeginLayer(int numberOfNeurons) : neurons(numberOfNeurons)
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+nn::InputLayer<NeuronType>::InputLayer(int numberOfNeurons) : neurons(numberOfNeurons)
 {
     for (auto& neuron : neurons)
-        neuron = std::shared_ptr<nn::abs::BeginNeuron>(new NeuronType{});
+        neuron = std::shared_ptr<nn::abs::InputNeuron>(new NeuronType{});
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-std::vector<std::shared_ptr<nn::abs::BeginNeuron>> nn::BeginLayer<NeuronType>::getBeginNeurons()
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+std::vector<std::shared_ptr<nn::abs::InputNeuron>> nn::InputLayer<NeuronType>::getInputNeurons()
 {
     return neurons;
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-int nn::BeginLayer<NeuronType>::getSize() const
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+int nn::InputLayer<NeuronType>::getSize() const
 {
     return neurons.size();
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-void nn::BeginLayer<NeuronType>::connect(nn::abs::Layer* l)
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+void nn::InputLayer<NeuronType>::connect(nn::abs::Layer* l)
 {
     for (auto& neuronThisLayer : neurons)
         for (auto& neuronOtherLayer : l->getNeurons())
@@ -246,8 +246,8 @@ void nn::BeginLayer<NeuronType>::connect(nn::abs::Layer* l)
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-std::vector<std::shared_ptr<nn::abs::Neuron>> nn::BeginLayer<NeuronType>::getNeurons()
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+std::vector<std::shared_ptr<nn::abs::Neuron>> nn::InputLayer<NeuronType>::getNeurons()
 {
     std::vector<std::shared_ptr<nn::abs::Neuron>> retVec{neurons.size()};
     for (int i = 0; i < neurons.size(); i++)
@@ -256,30 +256,30 @@ std::vector<std::shared_ptr<nn::abs::Neuron>> nn::BeginLayer<NeuronType>::getNeu
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-void nn::BeginLayer<NeuronType>::setActivation(std::function<double(double)> f)
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+void nn::InputLayer<NeuronType>::setActivation(std::function<double(double)> f)
 {
     for (auto& n : neurons)
         n->setActivation(f);
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-void nn::BeginLayer<NeuronType>::setNeuron(int index, std::shared_ptr<nn::abs::BeginNeuron> n)
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+void nn::InputLayer<NeuronType>::setNeuron(int index, std::shared_ptr<nn::abs::InputNeuron> n)
 {
     neurons[index] = std::move(n);
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-void nn::BeginLayer<NeuronType>::setNeurons(std::vector<std::shared_ptr<nn::abs::BeginNeuron>> n)
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+void nn::InputLayer<NeuronType>::setNeurons(std::vector<std::shared_ptr<nn::abs::InputNeuron>> n)
 {
     neurons = std::move(n);
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-void nn::BeginLayer<NeuronType>::setBias(const std::vector<double>& bs)
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+void nn::InputLayer<NeuronType>::setBias(const std::vector<double>& bs)
 {
     IS_VECTOR_COMPATIBLE(bs);
 
@@ -288,8 +288,8 @@ void nn::BeginLayer<NeuronType>::setBias(const std::vector<double>& bs)
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-void nn::BeginLayer<NeuronType>::setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights)
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+void nn::InputLayer<NeuronType>::setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights)
 {
     IS_VECTOR_COMPATIBLE(weights);
 
@@ -303,32 +303,32 @@ void nn::BeginLayer<NeuronType>::setWeights(const std::vector<std::map<nn::abs::
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-nn::BeginLayer<NeuronType>::BeginLayer(int numberOfNeurons, const std::function<double(double)>& f) : neurons(numberOfNeurons)
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+nn::InputLayer<NeuronType>::InputLayer(int numberOfNeurons, const std::function<double(double)>& f) : neurons(numberOfNeurons)
 {
     for (auto& neuron : neurons)
-        neuron = std::shared_ptr<nn::abs::BeginNeuron>(new NeuronType{});
-    nn::BeginLayer<NeuronType>::setActivation(f);
+        neuron = std::shared_ptr<nn::abs::InputNeuron>(new NeuronType{});
+    nn::InputLayer<NeuronType>::setActivation(f);
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-nn::BeginLayer<NeuronType>::BeginLayer(std::vector<std::shared_ptr<nn::abs::BeginNeuron>> neurons,
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+nn::InputLayer<NeuronType>::InputLayer(std::vector<std::shared_ptr<nn::abs::InputNeuron>> neurons,
                                        const std::function<double(double)>& f) : neurons(std::move(neurons))
 {
-    nn::BeginLayer<NeuronType>::setActivation(f);
+    nn::InputLayer<NeuronType>::setActivation(f);
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-nn::BeginLayer<NeuronType>::BeginLayer(std::vector<std::shared_ptr<nn::abs::BeginNeuron>> neurons) : neurons(std::move(neurons))
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+nn::InputLayer<NeuronType>::InputLayer(std::vector<std::shared_ptr<nn::abs::InputNeuron>> neurons) : neurons(std::move(neurons))
 {
 
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-std::vector<double> nn::BeginLayer<NeuronType>::calculate() const
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+std::vector<double> nn::InputLayer<NeuronType>::calculate() const
 {
     std::vector<double> retValue;
     retValue.reserve(neurons.size());
@@ -338,8 +338,8 @@ std::vector<double> nn::BeginLayer<NeuronType>::calculate() const
 }
 
 template<typename NeuronType>
-requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
-void nn::BeginLayer<NeuronType>::resetCaches() const
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+void nn::InputLayer<NeuronType>::resetCaches() const
 {
     for (auto& n : neurons)
         n->resetCache();

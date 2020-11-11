@@ -12,11 +12,11 @@ int nn::Network::getNumberOfLayers() const
 
 void nn::Network::pushLayer(std::shared_ptr<nn::abs::Layer> l)
 {
-    if (size == 0 && !isBeginLayer(l))
-        throw InvalidFirstLayerException("The first layer that is being pushed must derive from nn::abs::BeginLayer");
+    if (size == 0 && !isInputLayer(l))
+        throw InvalidFirstLayerException("The first layer that is being pushed must derive from nn::abs::InputLayer");
 
-    if (size != 0 && isBeginLayer(l))
-        std::cout << "[nn::Network::pushLayer] WARNING: The layer that is being pushed is of type nn::abs::BeginLayer, "
+    if (size != 0 && isInputLayer(l))
+        std::cout << "[nn::Network::pushLayer] WARNING: The layer that is being pushed is of type nn::abs::InputLayer, "
                      "that means the values before that layer can't be passed through this layer";
 
     if (size > 0)
@@ -25,25 +25,25 @@ void nn::Network::pushLayer(std::shared_ptr<nn::abs::Layer> l)
     size++;
 }
 
-bool nn::Network::isBeginLayer(const std::shared_ptr<nn::abs::Layer>& l) const { return dynamic_cast<nn::abs::BeginLayer*>(l.get()); }
+bool nn::Network::isInputLayer(const std::shared_ptr<nn::abs::Layer>& l) const { return dynamic_cast<nn::abs::InputLayer*>(l.get()); }
 
 int nn::Network::getCapacityOfLayers() const
 {
     return layers.capacity();
 }
 
-nn::Network::Network(int initialNumberOfLayers, const std::shared_ptr<nn::abs::BeginLayer>& firstLayer) : layers(
+nn::Network::Network(int initialNumberOfLayers, const std::shared_ptr<nn::abs::InputLayer>& firstLayer) : layers(
         initialNumberOfLayers)
 {
     nn::Network::pushLayer(firstLayer);
 }
 
-nn::Network::Network(std::shared_ptr<nn::abs::BeginLayer> firstLayer)
+nn::Network::Network(std::shared_ptr<nn::abs::InputLayer> firstLayer)
 {
     nn::Network::pushLayer(firstLayer);
 }
 
-nn::Network::Network(const std::shared_ptr<nn::abs::BeginLayer>& firstLayer, std::vector<std::shared_ptr<nn::abs::Layer>> layers)
+nn::Network::Network(const std::shared_ptr<nn::abs::InputLayer>& firstLayer, std::vector<std::shared_ptr<nn::abs::Layer>> layers)
 {
     nn::Network::pushLayer(firstLayer);
 
@@ -54,7 +54,7 @@ nn::Network::Network(const std::shared_ptr<nn::abs::BeginLayer>& firstLayer, std
 void nn::Network::setInputs(std::vector<double> values)
 {
     areLayersGiven();
-    dynamic_cast<nn::abs::BeginLayer*>(layers[0].get())->setValues(values);
+    dynamic_cast<nn::abs::InputLayer*>(layers[0].get())->setValues(values);
 }
 
 std::shared_ptr<nn::abs::Layer> nn::Network::getLayer(int index)

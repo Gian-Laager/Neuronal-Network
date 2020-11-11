@@ -11,12 +11,12 @@ TEST_F(Network, pushLayer_WillThrowIfFirstLayerIsNotOfTypeLayerBegin)
 {
     ASSERT_THROW(network.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(5)),
                  nn::Network::InvalidFirstLayerException);
-    ASSERT_NO_THROW(network.pushLayer(std::make_shared<nn::BeginLayer<nn::BeginNeuron>>(5)));
+    ASSERT_NO_THROW(network.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(5)));
 }
 
 TEST_F(Network, pushLayer_WillSizeIncrease)
 {
-    network.pushLayer(std::make_shared<nn::BeginLayer<nn::BeginNeuron>>(5));
+    network.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(5));
     ASSERT_EQ(network.getNumberOfLayers(), 1);
     for (int i = 1; i < 5; i++)
     {
@@ -27,7 +27,7 @@ TEST_F(Network, pushLayer_WillSizeIncrease)
 
 TEST_F(Network, SetInput_WillFirstLayersValuesBeSetCorrectly)
 {
-    network.pushLayer(std::make_shared<nn::BeginLayer<nn::BeginNeuron>>(5));
+    network.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(5));
     for (int i = 1; i <= 5; i++)
         network.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(5));
 
@@ -41,10 +41,10 @@ TEST_F(Network, SetInput_WillFirstLayersValuesBeSetCorrectly)
 TEST_F(Network, SetBias_WillThrowExceptionWhenIncompatibleSizeOfVector)
 {
     int firstLayerSize = 5;
-    network.pushLayer(std::make_shared<nn::BeginLayer<nn::BeginNeuron>>(firstLayerSize));
+    network.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(firstLayerSize));
     std::vector<double> biasesInvalid(firstLayerSize + 1);
     ASSERT_THROW(network.setBias(0, biasesInvalid),
-                 nn::BeginLayer<nn::BeginNeuron>::IncompatibleVectorException);
+                 nn::InputLayer<nn::InputNeuron>::IncompatibleVectorException);
     std::vector<double> biasesValid(firstLayerSize);
     ASSERT_NO_THROW(network.setBias(0, biasesValid));
 }
@@ -53,7 +53,7 @@ TEST_F(Network, SetBias_WillBiasBeSetCorrectly)
 {
     int firstLayerSize = 5;
     int secondLayerSize = 3;
-    network.pushLayer(std::make_shared<nn::BeginLayer<nn::BeginNeuron>>(firstLayerSize));
+    network.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(firstLayerSize));
     network.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(secondLayerSize));
 
     std::vector<double> firstBiases = {0.5, 0.2, -1, 2, -0.1};
@@ -72,7 +72,7 @@ TEST_F(Network, SetBias_WillBiasBeSetCorrectly)
 TEST_F(Network, Callculate_WillTheValueBeCallculatedCorrectly)
 {
     nn::Network net{3};
-    net.pushLayer(std::make_shared<nn::BeginLayer<nn::BeginNeuron>>(2, [](double z) -> double { return z - 1; }));
+    net.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(2, [](double z) -> double { return z - 1; }));
     net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(3, [](double z) -> double { return 1 / z; }));
     net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(2, [](double z) -> double { return z * z; }));
 

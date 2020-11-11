@@ -44,7 +44,7 @@ TEST_F(Neuron, ConnectionConnection_WillThisBeInConnectionsPreviousLayerOfNextLa
 TEST_F(Neuron, GetValue2Neurons_WillReturnRightValue)
 {
     double beginValue = 5.0;
-    nn::BeginNeuron n0{beginValue};
+    nn::InputNeuron n0{beginValue};
     nn::Neuron n1{};
     n0.connect(&n1);
 
@@ -65,7 +65,7 @@ TEST_F(Neuron, GetValue2Neurons_WillReturnRightValue)
 
 TEST_F(Neuron, SetWeights_WillWeightsBeSetRight)
 {
-    nn::BeginNeuron n0{};
+    nn::InputNeuron n0{};
     nn::Neuron n2;
     nn::Neuron n1;
 

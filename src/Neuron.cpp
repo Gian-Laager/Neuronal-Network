@@ -86,11 +86,11 @@ nn::Connection::Connection(nn::abs::Neuron* from, nn::abs::Neuron* to) : from(fr
                                                                          to(to) {}
 
 
-nn::BeginNeuron::BeginNeuron(std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer)
+nn::InputNeuron::InputNeuron(std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer)
         : connectionsNextLayer(std::move(
         connectionsNextLayer), {}) {}
 
-double nn::BeginNeuron::getValue() const
+double nn::InputNeuron::getValue() const
 {
     if (!cacheSet)
     {
@@ -100,12 +100,12 @@ double nn::BeginNeuron::getValue() const
     return cache;
 }
 
-void nn::BeginNeuron::setValue(double v)
+void nn::InputNeuron::setValue(double v)
 {
     value = v;
 }
 
-nn::BeginNeuron::BeginNeuron(double v,
+nn::InputNeuron::InputNeuron(double v,
                              std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer)
         : connectionsNextLayer(std::move(connectionsNextLayer)),
           value(v)
@@ -113,46 +113,46 @@ nn::BeginNeuron::BeginNeuron(double v,
 
 }
 
-nn::BeginNeuron::BeginNeuron(double v)
+nn::InputNeuron::InputNeuron(double v)
         : connectionsNextLayer(),
           value(v)
 {
 
 }
 
-std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> nn::BeginNeuron::getConnectionsNextLayer()
+std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> nn::InputNeuron::getConnectionsNextLayer()
 {
     return connectionsNextLayer;
 }
 
-void nn::BeginNeuron::connect(nn::abs::Neuron* n)
+void nn::InputNeuron::connect(nn::abs::Neuron* n)
 {
     auto c = std::make_shared<Connection>(Connection{this, n});
     connectionsNextLayer[n] = c;
     n->appendToPreviousConnection(this, c);
 }
 
-std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> nn::BeginNeuron::getConnectionsPreviousLayer()
+std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> nn::InputNeuron::getConnectionsPreviousLayer()
 {
     return std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>{};
 }
 
-double nn::BeginNeuron::getB() const
+double nn::InputNeuron::getB() const
 {
     return b;
 }
 
-void nn::BeginNeuron::setB(double bias)
+void nn::InputNeuron::setB(double bias)
 {
     this->b = bias;
 }
 
-void nn::BeginNeuron::setActivation(std::function<double(double)> f)
+void nn::InputNeuron::setActivation(std::function<double(double)> f)
 {
     activationFunction = std::move(f);
 }
 
-void nn::BeginNeuron::setWeights(std::map<nn::abs::Neuron*, double> weights)
+void nn::InputNeuron::setWeights(std::map<nn::abs::Neuron*, double> weights)
 {
     isInValidKeyInWeights(weights);
 
@@ -160,7 +160,7 @@ void nn::BeginNeuron::setWeights(std::map<nn::abs::Neuron*, double> weights)
         connectionsNextLayer[w.first]->w = w.second;
 }
 
-void nn::BeginNeuron::isInValidKeyInWeights(const std::map<nn::abs::Neuron*, double>& weights) const
+void nn::InputNeuron::isInValidKeyInWeights(const std::map<nn::abs::Neuron*, double>& weights) const
 {
     for (auto& w : weights)
         if (connectionsNextLayer.find(w.first) == connectionsNextLayer.end())
@@ -168,12 +168,12 @@ void nn::BeginNeuron::isInValidKeyInWeights(const std::map<nn::abs::Neuron*, dou
                     "All keys of the weights map have to be in connectionsNextLayer");
 }
 
-void nn::BeginNeuron::appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<nn::abs::Connection> c)
+void nn::InputNeuron::appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<nn::abs::Connection> c)
 {
 
 }
 
-void nn::BeginNeuron::resetCache() const
+void nn::InputNeuron::resetCache() const
 {
     cacheSet = false;
 }

@@ -34,7 +34,7 @@ namespace nn::abs
         virtual void resetCache() const = 0;
     };
 
-    class BeginNeuron : public nn::abs::Neuron
+    class InputNeuron : public nn::abs::Neuron
     {
     public:
         virtual void setValue(double v) = 0;
