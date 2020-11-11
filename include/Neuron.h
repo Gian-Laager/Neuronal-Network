@@ -24,6 +24,8 @@ namespace nn
         std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer;
         std::function<double(double)> activationFunction = [](double z) -> double { return z; };
 
+        void isInValidKeyInWeights(const std::map<nn::abs::Neuron*, double>& weights) const;
+
     public:
         Neuron(std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer,
                std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer);
@@ -48,12 +50,22 @@ namespace nn
 
         EXCEPTION(InvalidKeyInMapException);
 
+        void appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<nn::abs::Connection> c) override;
+
     private:
         double multiplyPreviousLayersResultsByWeights() const;
     };
 
-    class BeginNeuron : public nn::abs::BeginNeuron, public nn::Neuron
+    class BeginNeuron : public nn::abs::BeginNeuron
     {
+    protected:
+        double b = 0.0;
+
+        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer;
+        std::function<double(double)> activationFunction = [](double z) -> double { return z; };
+
+        void isInValidKeyInWeights(const std::map<nn::abs::Neuron*, double>& weights) const;
+
         double value = 0.0;
     public:
         BeginNeuron(std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer);
@@ -81,6 +93,8 @@ namespace nn
         double getValue() const override;
 
         void setValue(double v) override;
+
+        void appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<nn::abs::Connection> c) override;
     };
 }
 

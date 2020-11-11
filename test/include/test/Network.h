@@ -1,6 +1,10 @@
 #ifndef NEURONAL_NETWORK_TEST_NETWORK_H
 #define NEURONAL_NETWORK_TEST_NETWORK_H
 
+#define MessureTimeNeededToCalculate
+
+#include "Neural_Network.h"
+
 namespace nn::test
 {
     class Network : public testing::Test

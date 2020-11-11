@@ -13,6 +13,8 @@ namespace nn
 
         bool isBeginLayer(const std::shared_ptr<nn::abs::Layer>& l) const;
 
+        void areLayersGiven() const;
+
     public:
         Network(int initialNumberOfLayers);
 

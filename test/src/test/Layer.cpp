@@ -28,7 +28,7 @@ TEST_F(Layer, Connect_WillEveryNeuronBeConnectedToTheNeuronsInTheNextLayer)
     for (auto& nInL2 : l2.getNeurons())
     {
         bool connectedToAll = true;
-        for (auto& connection : nInL2->getConnectionsNextLayer())
+        for (auto& connection : nInL2->getConnectionsPreviousLayer())
         {
             bool connected = true;
             for (auto& nInLayer : layer.getNeurons())
@@ -87,4 +87,23 @@ TEST_F(Layer, GetBeginNeurons_WillReturnRightPointers)
     std::vector<std::shared_ptr<nn::abs::BeginNeuron>> getNeurons = beginLayer.getBeginNeurons();
     for (int i = 0; i < getNeurons.size(); i++)
         ASSERT_EQ(getNeurons[i]->getValue(), neurons[i]->getValue());
+}
+
+TEST_F(Layer, SetBias_WillThrowIfVectorIsInvalid)
+{
+    std::vector<double> biasesInvalid(numberOfNeurons + 1);
+    ASSERT_THROW(layer.setBias(biasesInvalid),
+                 nn::Layer<nn::Neuron>::IncompatibleVectorException);
+    std::vector<double> biasesValid(numberOfNeurons);
+    ASSERT_NO_THROW(layer.setBias(biasesValid));
+}
+
+TEST_F(Layer, SetBias_WillSetValuesRight)
+{
+    std::vector<double> biases = {0.5, 0.2, -1, 2};
+
+    layer.setBias(biases);
+
+    for (int i = 0; i < layer.getSize(); i++)
+        ASSERT_EQ(layer.getNeurons()[i]->getB(), biases[i]);
 }

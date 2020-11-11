@@ -46,14 +46,14 @@ nn::Network::Network(std::shared_ptr<nn::abs::BeginLayer> firstLayer)
 nn::Network::Network(const std::shared_ptr<nn::abs::BeginLayer>& firstLayer, std::vector<std::shared_ptr<nn::abs::Layer>> layers)
 {
     nn::Network::pushLayer(firstLayer);
+
     this->layers.insert(this->layers.end(), layers.begin(), layers.end());
     size += layers.size();
 }
 
 void nn::Network::setInputs(std::vector<double> values)
 {
-    if (size <= 0)
-        NoLayersGivenException{"No layers were pushed, use pushLayer to add a layer"};
+    areLayersGiven();
     dynamic_cast<nn::abs::BeginLayer*>(layers[0].get())->setValues(values);
 }
 
@@ -79,9 +79,14 @@ void nn::Network::setWeights(int index, const std::vector<std::map<nn::abs::Neur
 
 std::vector<double> nn::Network::calculate() const
 {
-    if (size <= 0)
-        throw NoLayersGivenException{"No layers were pushed, use pushLayer to add a layer"};
+    areLayersGiven();
     return layers[size - 1]->calculate();
+}
+
+void nn::Network::areLayersGiven() const
+{
+    if (this->size <= 0)
+        throw nn::Network::NoLayersGivenException{"No layers were pushed, use pushLayer to add a layer"};
 }
 
 int nn::Network::getSize() const

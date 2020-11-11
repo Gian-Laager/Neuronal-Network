@@ -1,6 +1,6 @@
 #include "test/Neuron.h"
 
-using namespace nn::test;
+using nn::test::Neuron;
 
 void Neuron::SetUp()
 {
@@ -61,4 +61,30 @@ TEST_F(Neuron, GetValue2Neurons_WillReturnRightValue)
     result += b;
     result = activationF(result);
     ASSERT_EQ(n1.getValue(), result);
+}
+
+TEST_F(Neuron, SetWeights_WillWeightsBeSetRight)
+{
+    nn::BeginNeuron n0{};
+    nn::Neuron n2;
+    nn::Neuron n1;
+
+    n0.connect(&n1);
+    n0.connect(&n2);
+
+    std::map<nn::abs::Neuron*, double> weights = {{&n1, 0.5}, {&n2, 0.3}};
+    n0.setWeights(weights);
+
+    ASSERT_EQ(n0.getConnectionsNextLayer()[&n1]->w, weights[&n1]);
+    ASSERT_EQ(n0.getConnectionsNextLayer()[&n2]->w, weights[&n2]);
+
+    ASSERT_EQ(n1.getConnectionsPreviousLayer()[dynamic_cast<nn::abs::Neuron*>(&n0)]->w, weights[&n1]);
+    ASSERT_EQ(n2.getConnectionsPreviousLayer()[dynamic_cast<nn::abs::Neuron*>(&n0)]->w, weights[&n2]);
+}
+
+TEST_F(Neuron, SetB_WillBiasBeSetCorrectly)
+{
+    double b = 0.25;
+    n.setB(b);
+    ASSERT_EQ(n.getB(), b);
 }

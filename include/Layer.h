@@ -1,6 +1,19 @@
 #ifndef NEURONAL_NETWORK_LAYER_H
 #define NEURONAL_NETWORK_LAYER_H
 
+#define IS_VECTOR_COMPATIBLE(vector) if (vector.size() != neurons.size())\
+        throw IncompatibleVectorException(\
+                "The size of the vector " + std::string(#vector) + " must be equal to the size of the vector Layer<NeuronType>::neurons. "\
+                + std::string(#vector) + " = " + std::to_string(vector.size()) +\
+                " Layer<NeuronType>::neurons.size() = " + std::to_string(neurons.size()))
+
+#define IS_VECTOR_MAP_COMPATIBLE(map, neurons) if (map.size() != neurons->getConnectionsNextLayer().size())\
+            throw IncompatibleVectorException(\
+                    "The size of the vector weights[i] must be equal to the size of the vector Layer<NeuronType>::neurons[]->connectionsNextLayer. "\
+                    + std::string(#map) +".size() = " + std::to_string(map.size()) +\
+                    " Layer<NeuronType>::"+ std::string(#neurons) +".size() = " + std::to_string(neurons->getConnectionsNextLayer().size()) +\
+                    " i = " + std::to_string(i))
+
 #include "abstract/Layer.h"
 
 #include <utility>
@@ -91,7 +104,7 @@ requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
 nn::Layer<NeuronType>::Layer(int numberOfNeurons) : neurons(numberOfNeurons)
 {
     for (auto& neuron : neurons)
-        neuron = std::shared_ptr<nn::abs::Neuron>(dynamic_cast<nn::abs::Neuron*>(new NeuronType{}));
+        neuron = std::shared_ptr<nn::abs::Neuron>(new NeuronType{});
 }
 
 template<typename NeuronType>
@@ -134,10 +147,7 @@ requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
 void nn::Layer<NeuronType>::setBias(const std::vector<double>& bs)
 {
     if (bs.size() != neurons.size())
-        throw IncompatibleVectorException(
-                "The size of the vector v must be equal to the size of the vector Layer<NeuronType>::neurons. "
-                "v.size() = " + std::to_string(bs.size()) +
-                " Layer<NeuronType>::neurons.size() = " + std::to_string(neurons.size()));
+        IS_VECTOR_COMPATIBLE(bs);
 
     for (int i = 0; i < neurons.size(); i++)
         neurons[i]->setB(bs[i]);
@@ -147,19 +157,10 @@ template<typename NeuronType>
 requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
 void nn::Layer<NeuronType>::setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights)
 {
-    if (weights.size() != neurons.size())
-        throw IncompatibleVectorException(
-                "The size of the vector v must be equal to the size of the vector Layer<NeuronType>::neurons. "
-                "weights.size() = " + std::to_string(weights.size()) +
-                " Layer<NeuronType>::neurons.size() = " + std::to_string(neurons.size()));
+    IS_VECTOR_COMPATIBLE(weights);
 
     for (int i = 0; i < neurons.size(); i++)
-        if (weights[i].size() != neurons[i]->getConnectionsNextLayer().size())
-            throw IncompatibleVectorException(
-                    "The size of the vector weights[i] must be equal to the size of the vector Layer<NeuronType>::neurons[]->connectionsNextLayer. "
-                    "weights.size() = " + std::to_string(weights.size()) +
-                    " Layer<NeuronType>::neurons.size() = " + std::to_string(neurons.size()) +
-                    " i = " + std::to_string(i));
+        IS_VECTOR_MAP_COMPATIBLE(weights[i], neurons[i]);
 
     for (int i = 0; i < neurons.size(); i++)
         neurons[i]->setWeights(weights[i]);
@@ -170,7 +171,7 @@ requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
 nn::Layer<NeuronType>::Layer(int numberOfNeurons, const std::function<double(double)>& f) : neurons(numberOfNeurons)
 {
         for (auto& neuron : neurons)
-            neuron = std::shared_ptr<nn::abs::Neuron>(dynamic_cast<nn::abs::Neuron*>(new NeuronType{}));
+            neuron = std::shared_ptr<nn::abs::Neuron>(new NeuronType{});
         nn::Layer<NeuronType>::setActivation(f);
 }
 
@@ -196,12 +197,7 @@ template<typename NeuronType>
 requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
 void nn::BeginLayer<NeuronType>::setValues(const std::vector<double>& v)
 {
-    if (v.size() != neurons.size())
-        throw IncompatibleVectorException(
-                "The size of the vector v must be equal to the size of the vector Layer<NeuronType>::neurons. "
-                "v.size() = " + std::to_string(v.size()) +
-                " Layer<NeuronType>::neurons.size() = " + std::to_string(neurons.size()));
-
+    IS_VECTOR_COMPATIBLE(v);
     for (int i = 0; i < neurons.size(); i++)
         neurons[i]->setValue(v[i]);
 }
@@ -273,11 +269,7 @@ template<typename NeuronType>
 requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
 void nn::BeginLayer<NeuronType>::setBias(const std::vector<double>& bs)
 {
-    if (bs.size() != neurons.size())
-        throw IncompatibleVectorException(
-                "The size of the vector v must be equal to the size of the vector Layer<NeuronType>::neurons. "
-                "v.size() = " + std::to_string(bs.size()) +
-                " Layer<NeuronType>::neurons.size() = " + std::to_string(neurons.size()));
+    IS_VECTOR_COMPATIBLE(bs);
 
     for (int i = 0; i < neurons.size(); i++)
         neurons[i]->setB(bs[i]);
@@ -287,19 +279,11 @@ template<typename NeuronType>
 requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
 void nn::BeginLayer<NeuronType>::setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights)
 {
-    if (weights.size() != neurons.size())
-        throw IncompatibleVectorException(
-                "The size of the vector v must be equal to the size of the vector Layer<NeuronType>::neurons. "
-                "weights.size() = " + std::to_string(weights.size()) +
-                " Layer<NeuronType>::neurons.size() = " + std::to_string(neurons.size()));
+    IS_VECTOR_COMPATIBLE(weights);
 
-    for (int i = 0; i < neurons.size(); i++)
-        if (weights[i].size() != neurons[i]->getConnectionsNextLayer().size())
-            throw IncompatibleVectorException(
-                    "The size of the vector weights[i] must be equal to the size of the vector Layer<NeuronType>::neurons[]->connectionsNextLayer. "
-                    "weights.size() = " + std::to_string(weights[i].size()) +
-                    " Layer<NeuronType>::neurons.size() = " + std::to_string(neurons[i]->getConnectionsNextLayer().size()) +
-                    " i = " + std::to_string(i));
+    for (int i = 0; i < weights.size(); i++)
+        IS_VECTOR_MAP_COMPATIBLE(weights[i], neurons[i]);
+
 
     for (int i = 0; i < neurons.size(); i++)
         for (auto& w : weights[i])
@@ -311,7 +295,7 @@ requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
 nn::BeginLayer<NeuronType>::BeginLayer(int numberOfNeurons, const std::function<double(double)>& f) : neurons(numberOfNeurons)
 {
     for (auto& neuron : neurons)
-        neuron = std::shared_ptr<nn::abs::BeginNeuron>(dynamic_cast<nn::abs::BeginNeuron*>(new NeuronType{}));
+        neuron = std::shared_ptr<nn::abs::BeginNeuron>(new NeuronType{});
     nn::BeginLayer<NeuronType>::setActivation(f);
 }
 

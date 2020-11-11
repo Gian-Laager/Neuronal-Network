@@ -43,10 +43,10 @@ TEST_F(Network, SetBias_WillThrowExceptionWhenIncompatibleSizeOfVector)
     int firstLayerSize = 5;
     network.pushLayer(std::make_shared<nn::BeginLayer<nn::BeginNeuron>>(firstLayerSize));
     std::vector<double> biasesInvalid(firstLayerSize + 1);
-    ASSERT_THROW(network.getLayer(0)->setBias(biasesInvalid),
+    ASSERT_THROW(network.setBias(0, biasesInvalid),
                  nn::BeginLayer<nn::BeginNeuron>::IncompatibleVectorException);
     std::vector<double> biasesValid(firstLayerSize);
-    ASSERT_NO_THROW(network.getLayer(0)->setBias(biasesValid));
+    ASSERT_NO_THROW(network.setBias(0, biasesValid));
 }
 
 TEST_F(Network, SetBias_WillBiasBeSetCorrectly)
@@ -100,8 +100,17 @@ TEST_F(Network, Callculate_WillTheValueBeCallculatedCorrectly)
     net.setBias(2, std::vector<double>{-1.2, -0.1});
 
     net.setInputs(std::vector{0.5, 0.25});
-
+#ifdef MessureTimeNeededToCalculate
+    auto tp1 = std::chrono::high_resolution_clock::now();
+#endif
     std::vector<double> resultCalc = net.calculate();
+#ifdef MessureTimeNeededToCalculate
+    auto tp2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsedTime = tp2 - tp1;
+
+    std::cout << "Time spend on net.calculate: " << elapsedTime.count() * 1000 << " ms" << std::endl;
+#endif
+
     std::vector<double> resultRight{130321.0 / 3025.0, 48.450036730945811};
     ASSERT_EQ(resultCalc.size(), net.getLayer(net.getSize() - 1)->getSize());
     ASSERT_EQ(resultCalc.size(), resultRight.size());
