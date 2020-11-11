@@ -40,9 +40,13 @@ namespace nn
 
         double getB() const override;
 
-        void setB(double b) override;
+        void setB(double bias) override;
 
         void setActivation(std::function<double(double)> f) override;
+
+        void setWeights(std::map<nn::abs::Neuron*, double> weights) override;
+
+        EXCEPTION(InvalidKeyInMapException);
 
     private:
         double multiplyPreviousLayersResultsByWeights() const;
@@ -68,9 +72,11 @@ namespace nn
 
         double getB() const override;
 
-        void setB(double b) override;
+        void setB(double bias) override;
 
         void setActivation(std::function<double(double)> f) override;
+
+        void setWeights(std::map<nn::abs::Neuron*, double> weights) override;
 
         double getValue() const override;
 

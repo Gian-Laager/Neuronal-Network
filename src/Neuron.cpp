@@ -1,7 +1,9 @@
 #include "Neuron.h"
 
 nn::Neuron::Neuron(std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer,
-                   std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer) {}
+                   std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer)
+        : connectionsNextLayer(std::move(connectionsNextLayer)),
+          connectionsPreviousLayer(std::move(connectionsPreviousLayer)) {}
 
 std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> nn::Neuron::getConnectionsNextLayer()
 {
@@ -45,9 +47,19 @@ void nn::Neuron::setActivation(std::function<double(double)> f)
     activationFunction = std::move(f);
 }
 
-void nn::Neuron::setB(double b)
+void nn::Neuron::setB(double bias)
 {
-    this->b = b;
+    this->b = bias;
+}
+
+void nn::Neuron::setWeights(std::map<nn::abs::Neuron*, double> weights)
+{
+    for (auto& w : weights)
+        if (connectionsNextLayer.find(w.first) == connectionsNextLayer.end())
+            throw InvalidKeyInMapException("All keys of the weights map have to be in connectionsNextLayer");
+
+    for (auto& w : weights)
+        connectionsNextLayer[w.first]->w = w.second;
 }
 
 nn::Connection::Connection(nn::abs::Neuron* from, nn::abs::Neuron* to) : from(from),
@@ -103,12 +115,17 @@ double nn::BeginNeuron::getB() const
     return nn::Neuron::getB();
 }
 
-void nn::BeginNeuron::setB(double b)
+void nn::BeginNeuron::setB(double bias)
 {
-    nn::Neuron::setB(b);
+    nn::Neuron::setB(bias);
 }
 
 void nn::BeginNeuron::setActivation(std::function<double(double)> f)
 {
     nn::Neuron::setActivation(f);
+}
+
+void nn::BeginNeuron::setWeights(std::map<nn::abs::Neuron*, double> weights)
+{
+    nn::Neuron::setWeights(std::move(weights));
 }

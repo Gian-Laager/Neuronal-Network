@@ -23,9 +23,11 @@ namespace nn::abs
 
         virtual double getB() const = 0;
 
-        virtual void setB(double b) = 0;
+        virtual void setB(double bias) = 0;
 
         virtual void setActivation(std::function<double(double)> f) = 0;
+
+        virtual void setWeights(std::map<Neuron*, double> weights) = 0;
     };
 
     class BeginNeuron : public virtual nn::abs::Neuron

@@ -5,7 +5,7 @@
                         {\
                         public:\
                             std::string message;              \
-                            Name(std::string message) : message(message) {}       \
+                            Name(std::string message) : message(std::move(message)) {}       \
                             \
                             const char* what() const noexcept override { return message.c_str(); }              \
                         };

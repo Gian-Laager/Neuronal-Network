@@ -19,6 +19,8 @@ void nn::Network::pushLayer(std::shared_ptr<nn::abs::Layer> l)
         std::cout << "[nn::Network::pushLayer] WARNING: The layer that is being pushed is of type nn::abs::BeginLayer, "
                      "that means the values before that layer can't be passed through this layer";
 
+    if (size > 0)
+        layers[size - 1]->connect(l.get());
     layers.push_back(l);
     size++;
 }
@@ -58,4 +60,31 @@ void nn::Network::setInputs(std::vector<double> values)
 std::shared_ptr<nn::abs::Layer> nn::Network::getLayer(int index)
 {
     return layers[index];
+}
+
+void nn::Network::setActivation(int index, std::function<double(double)> f)
+{
+    layers[index]->setActivation(f);
+}
+
+void nn::Network::setBias(int index, std::vector<double> bs)
+{
+    layers[index]->setBias(bs);
+}
+
+void nn::Network::setWeights(int index, const std::vector<std::map<nn::abs::Neuron*, double>>& weights)
+{
+    layers[index]->setWeights(weights);
+}
+
+std::vector<double> nn::Network::calculate() const
+{
+    if (size <= 0)
+        throw NoLayersGivenException{"No layers were pushed, use pushLayer to add a layer"};
+    return layers[size - 1]->calculate();
+}
+
+int nn::Network::getSize() const
+{
+    return layers.size();
 }

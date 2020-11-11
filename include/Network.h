@@ -10,7 +10,9 @@ namespace nn
     protected:
         int size = 0;
         std::vector<std::shared_ptr<nn::abs::Layer>> layers;
+
         bool isBeginLayer(const std::shared_ptr<nn::abs::Layer>& l) const;
+
     public:
         Network(int initialNumberOfLayers);
 
@@ -18,7 +20,8 @@ namespace nn
 
         Network(std::shared_ptr<nn::abs::BeginLayer> firstLayer);
 
-        Network(const std::shared_ptr<nn::abs::BeginLayer>& firstLayer, std::vector<std::shared_ptr<nn::abs::Layer>> layers);
+        Network(const std::shared_ptr<nn::abs::BeginLayer>& firstLayer,
+                std::vector<std::shared_ptr<nn::abs::Layer>> layers);
 
         Network() = default;
 
@@ -30,7 +33,17 @@ namespace nn
 
         void setInputs(std::vector<double> values) override;
 
+        std::vector<double> calculate() const override;
+
+        void setActivation(int index, std::function<double(double)> f) override;
+
+        void setBias(int index, std::vector<double> bs) override;
+
+        void setWeights(int index, const std::vector<std::map<nn::abs::Neuron*, double>>& weights) override;
+
         std::shared_ptr<nn::abs::Layer> getLayer(int index) override;
+
+        int getSize() const override;
 
         EXCEPTION(InvalidFirstLayerException);
 
