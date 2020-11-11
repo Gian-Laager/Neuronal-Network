@@ -30,6 +30,8 @@ namespace nn::abs
         virtual void setWeights(std::map<Neuron*, double> weights) = 0;
 
         virtual void appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<nn::abs::Connection> c) = 0;
+
+        virtual void resetCache() const = 0;
     };
 
     class BeginNeuron : public nn::abs::Neuron

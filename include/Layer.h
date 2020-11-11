@@ -52,6 +52,8 @@ namespace nn
 
         std::vector<double> calculate() const override;
 
+        void resetCaches() const override;
+
         EXCEPTION(IncompatibleVectorException);
     };
 
@@ -63,6 +65,8 @@ namespace nn
         std::vector<std::shared_ptr<nn::abs::BeginNeuron>> neurons;
 
     public:
+        void resetCaches() const override;
+
         BeginLayer(int numberOfNeurons);
 
         BeginLayer(int numberOfNeurons, const std::function<double(double)>& f);
@@ -191,6 +195,14 @@ std::vector<double> nn::Layer<NeuronType>::calculate() const
     for (auto& n : neurons)
         retValue.push_back(n->getValue());
     return retValue;
+}
+
+template<typename NeuronType>
+requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
+void nn::Layer<NeuronType>::resetCaches() const
+{
+    for (auto& n : neurons)
+        n->resetCache();
 }
 
 template<typename NeuronType>
@@ -323,6 +335,14 @@ std::vector<double> nn::BeginLayer<NeuronType>::calculate() const
     for (auto& n : neurons)
         retValue.push_back(n->getValue());
     return retValue;
+}
+
+template<typename NeuronType>
+requires std::is_base_of<nn::abs::BeginNeuron, NeuronType>::value
+void nn::BeginLayer<NeuronType>::resetCaches() const
+{
+    for (auto& n : neurons)
+        n->resetCache();
 }
 
 

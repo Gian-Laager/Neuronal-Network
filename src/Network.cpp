@@ -80,7 +80,9 @@ void nn::Network::setWeights(int index, const std::vector<std::map<nn::abs::Neur
 std::vector<double> nn::Network::calculate() const
 {
     areLayersGiven();
-    return layers[size - 1]->calculate();
+    std::vector<double> result = layers[size - 1]->calculate();
+    resetCaches();
+    return result;
 }
 
 void nn::Network::areLayersGiven() const
@@ -92,4 +94,10 @@ void nn::Network::areLayersGiven() const
 int nn::Network::getSize() const
 {
     return layers.size();
+}
+
+void nn::Network::resetCaches() const
+{
+    for (auto& l : layers)
+        l->resetCaches();
 }

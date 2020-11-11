@@ -24,9 +24,13 @@ void nn::Neuron::connect(nn::abs::Neuron* n)
 
 double nn::Neuron::getValue() const
 {
-    double result = multiplyPreviousLayersResultsByWeights();
-    result += b;
-    return activationFunction(result);
+    if (!cacheSet)
+    {
+        double result = multiplyPreviousLayersResultsByWeights();
+        cache = activationFunction(result + b);
+        cacheSet = true;
+    }
+    return cache;
 }
 
 double nn::Neuron::multiplyPreviousLayersResultsByWeights() const
@@ -64,12 +68,18 @@ void nn::Neuron::isInValidKeyInWeights(const std::map<nn::abs::Neuron*, double>&
 {
     for (auto& w : weights)
         if (this->connectionsNextLayer.find(w.first) == this->connectionsNextLayer.end())
-            throw nn::Neuron::InvalidKeyInMapException("All keys of the weights map have to be in connectionsNextLayer");
+            throw nn::Neuron::InvalidKeyInMapException(
+                    "All keys of the weights map have to be in connectionsNextLayer");
 }
 
 void nn::Neuron::appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<nn::abs::Connection> c)
 {
     connectionsPreviousLayer[n] = std::move(c);
+}
+
+void nn::Neuron::resetCache() const
+{
+    cacheSet = false;
 }
 
 nn::Connection::Connection(nn::abs::Neuron* from, nn::abs::Neuron* to) : from(from),
@@ -82,7 +92,12 @@ nn::BeginNeuron::BeginNeuron(std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs:
 
 double nn::BeginNeuron::getValue() const
 {
-    return activationFunction(value + b);
+    if (!cacheSet)
+    {
+        cache = activationFunction(value + b);
+        cacheSet = true;
+    }
+    return cache;
 }
 
 void nn::BeginNeuron::setValue(double v)
@@ -149,10 +164,16 @@ void nn::BeginNeuron::isInValidKeyInWeights(const std::map<nn::abs::Neuron*, dou
 {
     for (auto& w : weights)
         if (connectionsNextLayer.find(w.first) == connectionsNextLayer.end())
-            throw nn::Neuron::InvalidKeyInMapException("All keys of the weights map have to be in connectionsNextLayer");
+            throw nn::Neuron::InvalidKeyInMapException(
+                    "All keys of the weights map have to be in connectionsNextLayer");
 }
 
 void nn::BeginNeuron::appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<nn::abs::Connection> c)
 {
 
+}
+
+void nn::BeginNeuron::resetCache() const
+{
+    cacheSet = false;
 }

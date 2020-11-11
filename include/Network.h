@@ -47,6 +47,8 @@ namespace nn
 
         int getSize() const override;
 
+        void resetCaches() const override;
+
         EXCEPTION(InvalidFirstLayerException);
 
         EXCEPTION(NoLayersGivenException);

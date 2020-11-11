@@ -21,6 +21,8 @@ namespace nn::abs
         virtual void setBias(const std::vector<double>& bs) = 0;
 
         virtual void setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights) = 0;
+
+        virtual void resetCaches() const = 0;
     };
 
     class BeginLayer : public Layer
