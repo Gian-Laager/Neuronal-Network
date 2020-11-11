@@ -3,8 +3,7 @@
 
 #include "test/pch.h"
 
-#include "Layer.h"
-#include "Neuron.h"
+#include "Neural_Network.h"
 
 namespace nn::test
 {

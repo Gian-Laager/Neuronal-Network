@@ -23,12 +23,18 @@ namespace nn::abs
 
         virtual double getB() const = 0;
 
-        virtual void setB(double b) = 0;
+        virtual void setB(double bias) = 0;
 
         virtual void setActivation(std::function<double(double)> f) = 0;
+
+        virtual void setWeights(std::map<Neuron*, double> weights) = 0;
+
+        virtual void appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<nn::abs::Connection> c) = 0;
+
+        virtual void resetCache() const = 0;
     };
 
-    class BeginNeuron : public virtual nn::abs::Neuron
+    class BeginNeuron : public nn::abs::Neuron
     {
     public:
         virtual void setValue(double v) = 0;
