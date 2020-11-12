@@ -17,9 +17,9 @@ std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> nn::Neuron::get
 
 void nn::Neuron::connect(nn::abs::Neuron* n)
 {
-    auto c = std::make_shared<Connection>(Connection{this, n});
+    auto c = std::make_shared<Connection>(Connection{dynamic_cast<nn::abs::Neuron*>(this), n});
     connectionsNextLayer[n] = c;
-    n->appendToPreviousConnection(this, c);
+    n->appendToPreviousConnection(dynamic_cast<nn::abs::Neuron*>(this), c);
 }
 
 double nn::Neuron::getValue() const
@@ -27,7 +27,7 @@ double nn::Neuron::getValue() const
     if (!cacheSet)
     {
         double result = multiplyPreviousLayersResultsByWeights();
-        cache = activationFunction(result + b);
+        cache = (*activationFunction)(result + b);
         cacheSet = true;
     }
     return cache;
@@ -46,7 +46,7 @@ double nn::Neuron::getB() const
     return b;
 }
 
-void nn::Neuron::setActivation(std::function<double(double)> f)
+void nn::Neuron::setActivation(std::shared_ptr<nn::abs::Activation> f)
 {
     activationFunction = std::move(f);
 }
@@ -94,7 +94,7 @@ double nn::InputNeuron::getValue() const
 {
     if (!cacheSet)
     {
-        cache = activationFunction(value + b);
+        cache = (*activationFunction)(value + b);
         cacheSet = true;
     }
     return cache;
@@ -127,9 +127,9 @@ std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> nn::InputNeuron
 
 void nn::InputNeuron::connect(nn::abs::Neuron* n)
 {
-    auto c = std::make_shared<Connection>(Connection{this, n});
+    auto c = std::make_shared<Connection>(Connection{dynamic_cast<nn::abs::Neuron*>(this), n});
     connectionsNextLayer[n] = c;
-    n->appendToPreviousConnection(this, c);
+    n->appendToPreviousConnection(dynamic_cast<nn::abs::Neuron*>(this), c);
 }
 
 std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> nn::InputNeuron::getConnectionsPreviousLayer()
@@ -147,7 +147,7 @@ void nn::InputNeuron::setB(double bias)
     this->b = bias;
 }
 
-void nn::InputNeuron::setActivation(std::function<double(double)> f)
+void nn::InputNeuron::setActivation(std::shared_ptr<nn::abs::Activation> f)
 {
     activationFunction = std::move(f);
 }

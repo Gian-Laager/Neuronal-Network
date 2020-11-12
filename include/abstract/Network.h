@@ -1,6 +1,8 @@
 #ifndef NEURONAL_NETWORK_ABSTRACT_NETWORK_H
 #define NEURONAL_NETWORK_ABSTRACT_NETWORK_H
 
+#include "abstract/Activation.h"
+
 namespace nn::abs
 {
     class Network
@@ -20,7 +22,7 @@ namespace nn::abs
 
         virtual int getSize() const = 0;
 
-        virtual void setActivation(int index, std::function<double(double)> f) = 0;
+        virtual void setActivation(int index, std::shared_ptr<nn::abs::Activation> f) = 0;
 
         virtual void setBias(int index, std::vector<double> bs) = 0;
 

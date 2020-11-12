@@ -1,3 +1,4 @@
+#include <Activations.h>
 #include "test/Neuron.h"
 
 using nn::test::Neuron;
@@ -50,7 +51,7 @@ TEST_F(Neuron, GetValue2Neurons_WillReturnRightValue)
 
     double w = 0.5;
     double b = 10.0;
-    std::function<double(double)> activationF = [](double z) -> double { return 1 / (1 + exp(-z)); };
+    std::shared_ptr<nn::abs::Activation> activationF = std::make_shared<nn::activations::Linear>();
 
     n1.setActivation(activationF);
     n0.getConnectionsNextLayer()[&n1]->w = w;
@@ -59,7 +60,7 @@ TEST_F(Neuron, GetValue2Neurons_WillReturnRightValue)
     double result = beginValue;
     result *= w;
     result += b;
-    result = activationF(result);
+    result = (*activationF)(result);
     ASSERT_EQ(n1.getValue(), result);
 }
 

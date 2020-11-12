@@ -19,7 +19,10 @@ set(HEAD
         include/Layer.h
         include/abstract/Network.h
         include/Network.h
+        include/Activations.h
+        include/abstract/Activation.h
 )
+        include/Activations.h include/abstract/Activation.h)
 
 set(PCH
         include/pch.h

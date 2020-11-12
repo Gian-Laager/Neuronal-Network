@@ -2,14 +2,16 @@
 
 #include "Neural_Network.h"
 
+//#define PERFORMANCE_TEST
+
 void performanceTest()
 {
 //    auto _tp1 = std::chrono::high_resolution_clock::now();
     nn::Network net{3};
-    net.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(284, [](double z) -> double { return 1 / (1 - exp(-z)); }));
-    net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(16, [](double z) -> double { return 1 / (1-exp(-z)); }));
-    net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(16, [](double z) -> double { return 1 / (1-exp(-z)); }));
-    net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(9, [](double z) -> double { return 1 / (1-exp(-z)); }));
+    net.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(284, std::make_shared<nn::activations::Sigmoid>()));
+    net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(16, std::make_shared<nn::activations::Sigmoid>()));
+    net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(16, std::make_shared<nn::activations::Sigmoid>()));
+    net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(9, std::make_shared<nn::activations::Sigmoid>()));
 
     std::vector<double> inputVector(284);
     for (auto& e : inputVector)
@@ -42,7 +44,9 @@ void performanceTest()
 
 int main()
 {
+#ifdef PERFORMANCE_TEST
     performanceTest();
+#endif
     testing::InitGoogleTest();
     return RUN_ALL_TESTS();
 }

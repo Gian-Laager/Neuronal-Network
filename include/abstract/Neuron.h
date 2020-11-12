@@ -2,6 +2,7 @@
 #define NEURONAL_NETWORK_ABSTRACT_NEURON_H
 
 #include "pch.h"
+#include "abstract/Activation.h"
 
 namespace nn::abs
 {
@@ -25,7 +26,7 @@ namespace nn::abs
 
         virtual void setB(double bias) = 0;
 
-        virtual void setActivation(std::function<double(double)> f) = 0;
+        virtual void setActivation(std::shared_ptr<nn::abs::Activation> f) = 0;
 
         virtual void setWeights(std::map<Neuron*, double> weights) = 0;
 

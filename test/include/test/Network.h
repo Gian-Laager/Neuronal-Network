@@ -3,6 +3,7 @@
 
 #define MessureTimeNeededToCalculate
 
+#include "pch.h"
 #include "Neural_Network.h"
 
 namespace nn::test

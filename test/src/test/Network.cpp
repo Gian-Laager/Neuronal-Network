@@ -71,10 +71,32 @@ TEST_F(Network, SetBias_WillBiasBeSetCorrectly)
 
 TEST_F(Network, Callculate_WillTheValueBeCallculatedCorrectly)
 {
+    class FirstLayerActivation : public nn::abs::Activation
+    {
+    public:
+        double operator()(double z) override { return z - 1; }
+
+        double derivative(double z) override { return 1; }
+    };
+    class SecondLayerActivation : public nn::abs::Activation
+    {
+    public:
+        double operator()(double z) override { return 1 / z; }
+
+        double derivative(double z) override { return 1; }
+    };
+    class ThirdLayerActivation : public nn::abs::Activation
+    {
+    public:
+        double operator()(double z) override { return z * z; }
+
+        double derivative(double z) override { return 1; }
+    };
+
     nn::Network net{3};
-    net.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(2, [](double z) -> double { return z - 1; }));
-    net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(3, [](double z) -> double { return 1 / z; }));
-    net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(2, [](double z) -> double { return z * z; }));
+    net.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(2, std::make_shared<FirstLayerActivation>()));
+    net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(3, std::make_shared<SecondLayerActivation>()));
+    net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(2, std::make_shared<ThirdLayerActivation>()));
 
     net.setBias(0, std::vector<double>{0.2, -3});
     net.setWeights(0, std::vector<std::map<nn::abs::Neuron*, double>>{

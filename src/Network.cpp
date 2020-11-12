@@ -62,7 +62,7 @@ std::shared_ptr<nn::abs::Layer> nn::Network::getLayer(int index)
     return layers[index];
 }
 
-void nn::Network::setActivation(int index, std::function<double(double)> f)
+void nn::Network::setActivation(int index, std::shared_ptr<nn::abs::Activation> f)
 {
     layers[index]->setActivation(f);
 }

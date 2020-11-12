@@ -3,6 +3,8 @@
 
 #include "abstract/Neuron.h"
 
+#include "Activations.h"
+
 namespace nn
 {
     struct Connection : public nn::abs::Connection
@@ -22,7 +24,7 @@ namespace nn
 
         std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer;
         std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer;
-        std::function<double(double)> activationFunction = [](double z) -> double { return z; };
+        std::shared_ptr<nn::abs::Activation> activationFunction = std::make_shared<nn::activations::Linear>();
 
         mutable bool cacheSet = false;
         mutable double cache;
@@ -49,7 +51,7 @@ namespace nn
 
         void setB(double bias) override;
 
-        void setActivation(std::function<double(double)> f) override;
+        void setActivation(std::shared_ptr<nn::abs::Activation> f) override;
 
         void setWeights(std::map<nn::abs::Neuron*, double> weights) override;
 
@@ -67,7 +69,7 @@ namespace nn
         double b = 0.0;
 
         std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer;
-        std::function<double(double)> activationFunction = [](double z) -> double { return z; };
+        std::shared_ptr<nn::abs::Activation> activationFunction = std::make_shared<nn::activations::Linear>();
 
         mutable bool cacheSet = false;
         mutable double cache;
@@ -96,7 +98,7 @@ namespace nn
 
         void setB(double bias) override;
 
-        void setActivation(std::function<double(double)> f) override;
+        void setActivation(std::shared_ptr<nn::abs::Activation> f) override;
 
         void setWeights(std::map<nn::abs::Neuron*, double> weights) override;
 

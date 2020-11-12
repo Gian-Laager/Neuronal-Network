@@ -37,7 +37,7 @@ namespace nn
 
         std::vector<double> calculate() const override;
 
-        void setActivation(int index, std::function<double(double)> f) override;
+        void setActivation(int index, std::shared_ptr<nn::abs::Activation> f) override;
 
         void setBias(int index, std::vector<double> bs) override;
 
