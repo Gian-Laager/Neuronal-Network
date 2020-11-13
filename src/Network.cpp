@@ -1,6 +1,7 @@
 #include "Network.h"
 
-nn::Network::Network(int initialNumberOfLayers)
+nn::Network::Network(int initialNumberOfLayers) : backpropagator(
+        std::make_shared<nn::Backpropagator>())
 {
     layers.reserve(initialNumberOfLayers);
 }
@@ -25,7 +26,8 @@ void nn::Network::pushLayer(std::shared_ptr<nn::abs::Layer> l)
     size++;
 }
 
-bool nn::Network::isInputLayer(const std::shared_ptr<nn::abs::Layer>& l) const { return dynamic_cast<nn::abs::InputLayer*>(l.get()); }
+bool nn::Network::isInputLayer(
+        const std::shared_ptr<nn::abs::Layer>& l) const { return dynamic_cast<nn::abs::InputLayer*>(l.get()); }
 
 int nn::Network::getCapacityOfLayers() const
 {
@@ -33,17 +35,23 @@ int nn::Network::getCapacityOfLayers() const
 }
 
 nn::Network::Network(int initialNumberOfLayers, const std::shared_ptr<nn::abs::InputLayer>& firstLayer) : layers(
-        initialNumberOfLayers)
+        initialNumberOfLayers),
+                                                                                                          backpropagator(
+                                                                                                                  std::dynamic_pointer_cast<nn::abs::Backpropagator>(
+                                                                                                                          std::make_shared<nn::Backpropagator>()))
 {
     nn::Network::pushLayer(firstLayer);
 }
 
-nn::Network::Network(std::shared_ptr<nn::abs::InputLayer> firstLayer)
+nn::Network::Network(std::shared_ptr<nn::abs::InputLayer> firstLayer) : backpropagator(
+        std::make_shared<nn::Backpropagator>())
 {
     nn::Network::pushLayer(firstLayer);
 }
 
-nn::Network::Network(const std::shared_ptr<nn::abs::InputLayer>& firstLayer, std::vector<std::shared_ptr<nn::abs::Layer>> layers)
+nn::Network::Network(const std::shared_ptr<nn::abs::InputLayer>& firstLayer,
+                     std::vector<std::shared_ptr<nn::abs::Layer>> layers) : backpropagator(
+        std::make_shared<nn::Backpropagator>())
 {
     nn::Network::pushLayer(firstLayer);
 
@@ -57,7 +65,7 @@ void nn::Network::setInputs(std::vector<double> values)
     dynamic_cast<nn::abs::InputLayer*>(layers[0].get())->setValues(values);
 }
 
-std::shared_ptr<nn::abs::Layer> nn::Network::getLayer(int index)
+std::shared_ptr<const nn::abs::Layer> nn::Network::getLayer(int index) const
 {
     return layers[index];
 }
@@ -100,4 +108,36 @@ void nn::Network::resetCaches() const
 {
     for (auto& l : layers)
         l->resetCaches();
+}
+
+nn::Network::Network() : backpropagator(
+        std::make_shared<nn::Backpropagator>())
+{
+
+}
+
+void nn::Network::setBackpropagator(std::shared_ptr<nn::abs::Backpropagator> backprop)
+{
+    backpropagator = std::move(backprop);
+}
+
+void nn::Network::fit(const std::vector<std::vector<double>>& x, const std::vector<std::vector<double>>& y,
+                      std::shared_ptr<nn::abs::LossFunction> lossF, long batchSize, long epochs)
+{
+    backpropagator->fit(this, x, y, lossF, batchSize, epochs);
+}
+
+int nn::Network::getOutputLayerSize() const
+{
+    return getLayer(getNumberOfLayers() - 1)->getSize();
+}
+
+int nn::Network::getInputLayerSize() const
+{
+    return getLayer(0)->getSize();
+}
+
+std::shared_ptr<nn::abs::Layer> nn::Network::getLayer(int index)
+{
+    return layers[index];
 }

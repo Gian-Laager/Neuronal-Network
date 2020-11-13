@@ -5,6 +5,7 @@ using nn::test::Network;
 TEST_F(Network, Constructor_WillLayersHaveRightSize)
 {
     ASSERT_EQ(initialNumberOfLayers, network.getCapacityOfLayers());
+    ASSERT_TRUE(getBackpropagator(&network).get());
 }
 
 TEST_F(Network, pushLayer_WillThrowIfFirstLayerIsNotOfTypeLayerBegin)

@@ -52,6 +52,8 @@ namespace nn
 
         std::vector<double> calculate() const override;
 
+        std::vector<std::shared_ptr<const nn::abs::Neuron>> getNeurons() const override;
+
         void resetCaches() const override;
 
         EXCEPTION(IncompatibleVectorException);
@@ -86,6 +88,8 @@ namespace nn
         std::vector<double> calculate() const override;
 
         std::vector<std::shared_ptr<nn::abs::InputNeuron>> getInputNeurons() override;
+
+        std::vector<std::shared_ptr<const nn::abs::Neuron>> getNeurons() const override;
 
         int getSize() const override;
 
@@ -203,6 +207,13 @@ void nn::Layer<NeuronType>::resetCaches() const
 {
     for (auto& n : neurons)
         n->resetCache();
+}
+
+template<typename NeuronType>
+requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
+std::vector<std::shared_ptr<const nn::abs::Neuron>> nn::Layer<NeuronType>::getNeurons() const
+{
+    return *(const std::vector<std::shared_ptr<const nn::abs::Neuron>>*) ((long) &neurons);
 }
 
 template<typename NeuronType>
@@ -343,6 +354,13 @@ void nn::InputLayer<NeuronType>::resetCaches() const
 {
     for (auto& n : neurons)
         n->resetCache();
+}
+
+template<typename NeuronType>
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+std::vector<std::shared_ptr<const nn::abs::Neuron>> nn::InputLayer<NeuronType>::getNeurons() const
+{
+    return *(const std::vector<std::shared_ptr<const nn::abs::Neuron>>*) ((long) &neurons);
 }
 
 

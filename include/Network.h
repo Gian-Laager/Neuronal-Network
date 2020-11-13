@@ -2,6 +2,7 @@
 #define NEURONAL_NETWORK_NETWORK_H
 
 #include "abstract.h"
+#include "Backpropagator.h"
 
 namespace nn
 {
@@ -9,7 +10,10 @@ namespace nn
     {
     protected:
         int size = 0;
+
         std::vector<std::shared_ptr<nn::abs::Layer>> layers;
+
+        std::shared_ptr<nn::abs::Backpropagator> backpropagator;
 
         bool isInputLayer(const std::shared_ptr<nn::abs::Layer>& l) const;
 
@@ -25,7 +29,7 @@ namespace nn
         Network(const std::shared_ptr<nn::abs::InputLayer>& firstLayer,
                 std::vector<std::shared_ptr<nn::abs::Layer>> layers);
 
-        Network() = default;
+        Network();
 
         int getNumberOfLayers() const override;
 
@@ -43,11 +47,24 @@ namespace nn
 
         void setWeights(int index, const std::vector<std::map<nn::abs::Neuron*, double>>& weights) override;
 
+        std::shared_ptr<const nn::abs::Layer> getLayer(int index) const override;
+
         std::shared_ptr<nn::abs::Layer> getLayer(int index) override;
 
         int getSize() const override;
 
         void resetCaches() const override;
+
+        void setBackpropagator(std::shared_ptr<nn::abs::Backpropagator> backprop) override;
+
+        void fit(const std::vector<std::vector<double>>& x,
+                 const std::vector<std::vector<double>>& y,
+                 std::shared_ptr<nn::abs::LossFunction> lossF,
+                 long batchSize, long epochs = 1) override;
+
+        int getInputLayerSize() const override;
+
+        int getOutputLayerSize() const override;
 
         EXCEPTION(InvalidFirstLayerException);
 

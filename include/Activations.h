@@ -30,8 +30,7 @@ namespace nn::activations
 
         double derivative(double z) override
         {
-            return 1 - ((exp(z) - exp(-z)) / (exp(z) + exp(-z))) *
-                       ((exp(z) - exp(-z)) / (exp(z) + exp(-z))); // = 1 - tanh^2(z)
+            return 1 - pow((exp(z) - exp(-z)) / (exp(z) + exp(-z)), 2);
         }
     };
 
