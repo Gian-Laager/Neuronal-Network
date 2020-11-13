@@ -18,5 +18,6 @@
 #include <functional>
 #include <math.h>
 #include <iostream>
+#include <future>
 
 #endif //NEURONAL_NETWORK_PCH_H

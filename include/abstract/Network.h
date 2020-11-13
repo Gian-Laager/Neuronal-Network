@@ -36,10 +36,13 @@ namespace nn::abs
 
         virtual void setBackpropagator(std::shared_ptr<nn::abs::Backpropagator> backprop) = 0;
 
+        virtual void initializeFitting(std::shared_ptr<nn::abs::LossFunction> lossF) = 0;
+
         virtual void fit(const std::vector<std::vector<double>>& x,
-                         const std::vector<std::vector<double>>& y,
-                         std::shared_ptr<nn::abs::LossFunction> lossF,
-                         long batchSize, long epochs = 1) = 0;
+                         const std::vector<std::vector<double>>& y, int epochs, int batchSize) = 0;
+
+        virtual void fit(const std::vector<std::vector<double>>& x,
+                         const std::vector<std::vector<double>>& y, int epochs) = 0;
 
         virtual int getInputLayerSize() const = 0;
 

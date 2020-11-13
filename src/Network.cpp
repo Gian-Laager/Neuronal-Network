@@ -121,10 +121,9 @@ void nn::Network::setBackpropagator(std::shared_ptr<nn::abs::Backpropagator> bac
     backpropagator = std::move(backprop);
 }
 
-void nn::Network::fit(const std::vector<std::vector<double>>& x, const std::vector<std::vector<double>>& y,
-                      std::shared_ptr<nn::abs::LossFunction> lossF, long batchSize, long epochs)
+void nn::Network::initializeFitting(std::shared_ptr<nn::abs::LossFunction> lossF)
 {
-    backpropagator->fit(this, x, y, lossF, batchSize, epochs);
+    backpropagator->initialize(this, lossF);
 }
 
 int nn::Network::getOutputLayerSize() const
@@ -140,4 +139,15 @@ int nn::Network::getInputLayerSize() const
 std::shared_ptr<nn::abs::Layer> nn::Network::getLayer(int index)
 {
     return layers[index];
+}
+
+void nn::Network::fit(const std::vector<std::vector<double>>& x, const std::vector<std::vector<double>>& y, int epochs,
+                      int batchSize)
+{
+    backpropagator->fit(x, y, epochs, batchSize);
+}
+
+void nn::Network::fit(const std::vector<std::vector<double>>& x, const std::vector<std::vector<double>>& y, int epochs)
+{
+    backpropagator->fit(x, y, epochs);
 }

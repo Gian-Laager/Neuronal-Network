@@ -360,7 +360,7 @@ template<typename NeuronType>
 requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
 std::vector<std::shared_ptr<const nn::abs::Neuron>> nn::InputLayer<NeuronType>::getNeurons() const
 {
-    return *(const std::vector<std::shared_ptr<const nn::abs::Neuron>>*) ((long) &neurons);
+    return *(const std::vector<std::shared_ptr<const nn::abs::Neuron>>*) ((long*) &neurons);
 }
 
 

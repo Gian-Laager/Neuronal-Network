@@ -11,6 +11,8 @@ namespace nn
     protected:
         int size = 0;
 
+        bool fittingInitialized = false;
+
         std::vector<std::shared_ptr<nn::abs::Layer>> layers;
 
         std::shared_ptr<nn::abs::Backpropagator> backpropagator;
@@ -57,10 +59,13 @@ namespace nn
 
         void setBackpropagator(std::shared_ptr<nn::abs::Backpropagator> backprop) override;
 
+        void initializeFitting(std::shared_ptr<nn::abs::LossFunction> lossF) override;
+
         void fit(const std::vector<std::vector<double>>& x,
-                 const std::vector<std::vector<double>>& y,
-                 std::shared_ptr<nn::abs::LossFunction> lossF,
-                 long batchSize, long epochs = 1) override;
+                 const std::vector<std::vector<double>>& y, int epochs, int batchSize) override;
+
+        void fit(const std::vector<std::vector<double>>& x,
+                 const std::vector<std::vector<double>>& y, int epochs) override;
 
         int getInputLayerSize() const override;
 
@@ -69,6 +74,8 @@ namespace nn
         EXCEPTION(InvalidFirstLayerException);
 
         EXCEPTION(NoLayersGivenException);
+
+        EXCEPTION(FitNotInitializedExeption);
     };
 }
 
