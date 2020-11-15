@@ -41,7 +41,9 @@ namespace nn
 
         void setInputs(std::vector<double> values) override;
 
-        std::vector<double> calculate() const override;
+        std::vector<double> calculate() override;
+
+        std::vector<double> calculate(std::vector<double> values) override;
 
         void setActivation(int index, std::shared_ptr<nn::abs::Activation> f) override;
 
@@ -62,10 +64,10 @@ namespace nn
         void initializeFitting(std::shared_ptr<nn::abs::LossFunction> lossF) override;
 
         void fit(const std::vector<std::vector<double>>& x,
-                 const std::vector<std::vector<double>>& y, int epochs, int batchSize) override;
+                 const std::vector<std::vector<double>>& y, double learningRate, int epochs, int batchSize) override;
 
         void fit(const std::vector<std::vector<double>>& x,
-                 const std::vector<std::vector<double>>& y, int epochs) override;
+                 const std::vector<std::vector<double>>& y, double learningRate, int epochs) override;
 
         int getInputLayerSize() const override;
 

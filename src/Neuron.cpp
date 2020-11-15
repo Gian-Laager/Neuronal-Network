@@ -26,11 +26,10 @@ double nn::Neuron::getValue() const
 {
     if (!cacheSet)
     {
-        double result = multiplyPreviousLayersResultsByWeights();
-        cache = (*activationFunction)(result + b);
+        cacheActivation = (*activationFunction)(getZ());
         cacheSet = true;
     }
-    return cache;
+    return cacheActivation;
 }
 
 double nn::Neuron::multiplyPreviousLayersResultsByWeights() const
@@ -80,6 +79,23 @@ void nn::Neuron::appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<
 void nn::Neuron::resetCache() const
 {
     cacheSet = false;
+    cacheZSet = false;
+}
+
+std::shared_ptr<const nn::abs::Activation> nn::Neuron::getActivation() const
+{
+    return activationFunction;
+}
+
+double nn::Neuron::getZ() const
+{
+    if (!cacheZSet)
+    {
+        cacheZ = multiplyPreviousLayersResultsByWeights() + b;
+        cacheZSet = true;
+    }
+
+    return cacheZ;
 }
 
 nn::Connection::Connection(nn::abs::Neuron* from, nn::abs::Neuron* to) : from(from),
@@ -94,10 +110,11 @@ double nn::InputNeuron::getValue() const
 {
     if (!cacheSet)
     {
-        cache = (*activationFunction)(value + b);
+        cacheActivation = (*activationFunction)(cacheZ);
         cacheSet = true;
     }
-    return cache;
+
+    return cacheActivation;
 }
 
 void nn::InputNeuron::setValue(double v)
@@ -176,4 +193,20 @@ void nn::InputNeuron::appendToPreviousConnection(nn::abs::Neuron* n, std::shared
 void nn::InputNeuron::resetCache() const
 {
     cacheSet = false;
+    cacheZSet = false;
+}
+
+std::shared_ptr<const nn::abs::Activation> nn::InputNeuron::getActivation() const
+{
+    return activationFunction;
+}
+
+double nn::InputNeuron::getZ() const
+{
+    if (!cacheZSet)
+    {
+        cacheZ = value + b;
+        cacheZSet = true;
+    }
+    return cacheZ;
 }

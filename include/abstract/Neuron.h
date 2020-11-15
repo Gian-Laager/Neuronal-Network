@@ -28,6 +28,10 @@ namespace nn::abs
 
         virtual void setActivation(std::shared_ptr<nn::abs::Activation> f) = 0;
 
+        virtual std::shared_ptr<const nn::abs::Activation> getActivation() const = 0;
+
+        virtual double getZ() const = 0;
+
         virtual void setWeights(std::map<Neuron*, double> weights) = 0;
 
         virtual void appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<nn::abs::Connection> c) = 0;

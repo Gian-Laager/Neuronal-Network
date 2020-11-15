@@ -19,5 +19,8 @@
 #include <math.h>
 #include <iostream>
 #include <future>
+#include <random>
+#include <algorithm>
+#include <iterator>
 
 #endif //NEURONAL_NETWORK_PCH_H

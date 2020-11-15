@@ -27,7 +27,9 @@ namespace nn
         std::shared_ptr<nn::abs::Activation> activationFunction = std::make_shared<nn::activations::Linear>();
 
         mutable bool cacheSet = false;
-        mutable double cache;
+        mutable bool cacheZSet = false;
+        mutable double cacheActivation;
+        mutable double cacheZ;
 
         void isInValidKeyInWeights(const std::map<nn::abs::Neuron*, double>& weights) const;
 
@@ -38,6 +40,8 @@ namespace nn
         Neuron() = default;
 
         void resetCache() const override;
+
+        double getZ() const;
 
         std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsNextLayer() override;
 
@@ -52,6 +56,8 @@ namespace nn
         void setB(double bias) override;
 
         void setActivation(std::shared_ptr<nn::abs::Activation> f) override;
+
+        std::shared_ptr<const nn::abs::Activation> getActivation() const;
 
         void setWeights(std::map<nn::abs::Neuron*, double> weights) override;
 
@@ -72,7 +78,9 @@ namespace nn
         std::shared_ptr<nn::abs::Activation> activationFunction = std::make_shared<nn::activations::Linear>();
 
         mutable bool cacheSet = false;
-        mutable double cache;
+        mutable bool cacheZSet = false;
+        mutable double cacheActivation;
+        mutable double cacheZ;
 
         void isInValidKeyInWeights(const std::map<nn::abs::Neuron*, double>& weights) const;
 
@@ -100,9 +108,13 @@ namespace nn
 
         void setActivation(std::shared_ptr<nn::abs::Activation> f) override;
 
+        std::shared_ptr<const nn::abs::Activation> getActivation() const;
+
         void setWeights(std::map<nn::abs::Neuron*, double> weights) override;
 
         double getValue() const override;
+
+        double getZ() const override;
 
         void setValue(double v) override;
 

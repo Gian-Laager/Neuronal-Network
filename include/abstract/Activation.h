@@ -6,9 +6,9 @@ namespace nn::abs
     class Activation
     {
     public:
-        virtual double operator()(double z) = 0;
+        virtual double operator()(double z) const = 0;
 
-        virtual double derivative(double z) = 0;
+        virtual double derivative(double z) const = 0;
     };
 }
 

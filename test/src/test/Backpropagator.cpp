@@ -31,7 +31,7 @@ TEST_F(Backpropagator, Fit_WillThrowExceptionWhenVectorIsInvalid)
 
     ASSERT_THROW(simpleNetwork.fit(simpleInvalidInput, simpleValidOut, 1),
                  nn::Backpropagator::InvalidVectorSize);
-    
+
     ASSERT_THROW(simpleNetwork.fit(simpleValidInput, simpleInvalidOut, 1),
                  nn::Backpropagator::InvalidVectorSize);
 

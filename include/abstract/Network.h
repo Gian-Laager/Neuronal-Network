@@ -18,7 +18,9 @@ namespace nn::abs
 
         virtual void setInputs(std::vector<double> values) = 0;
 
-        virtual std::vector<double> calculate() const = 0;
+        virtual std::vector<double> calculate(std::vector<double> values) = 0;
+
+        virtual std::vector<double> calculate() = 0;
 
         virtual std::shared_ptr<const nn::abs::Layer> getLayer(int index) const = 0;
 
@@ -39,10 +41,10 @@ namespace nn::abs
         virtual void initializeFitting(std::shared_ptr<nn::abs::LossFunction> lossF) = 0;
 
         virtual void fit(const std::vector<std::vector<double>>& x,
-                         const std::vector<std::vector<double>>& y, int epochs, int batchSize) = 0;
+                         const std::vector<std::vector<double>>& y, double learningRate, int epochs, int batchSize) = 0;
 
         virtual void fit(const std::vector<std::vector<double>>& x,
-                         const std::vector<std::vector<double>>& y, int epochs) = 0;
+                         const std::vector<std::vector<double>>& y, double learningRate, int epochs) = 0;
 
         virtual int getInputLayerSize() const = 0;
 

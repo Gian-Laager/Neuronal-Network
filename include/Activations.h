@@ -9,12 +9,12 @@ namespace nn::activations
     class Sigmoid : public nn::abs::Activation
     {
     public:
-        double operator()(double z) override
+        double operator()(double z) const override
         {
             return 1 / (1 + exp(-z));
         }
 
-        double derivative(double z) override
+        double derivative(double z) const override
         {
             return this->operator()(z) * (1 - this->operator()(z));
         }
@@ -23,12 +23,12 @@ namespace nn::activations
     class Tanh : public nn::abs::Activation
     {
     public:
-        double operator()(double z) override
+        double operator()(double z) const override
         {
             return tanh(z);
         }
 
-        double derivative(double z) override
+        double derivative(double z) const override
         {
             return 1 - pow((exp(z) - exp(-z)) / (exp(z) + exp(-z)), 2);
         }
@@ -37,12 +37,12 @@ namespace nn::activations
     class Linear : public nn::abs::Activation
     {
     public:
-        double operator()(double z) override
+        double operator()(double z) const override
         {
             return z;
         }
 
-        double derivative(double z) override
+        double derivative(double z) const override
         {
             return 1;
         }
@@ -51,12 +51,12 @@ namespace nn::activations
     class Relu : public nn::abs::Activation
     {
     public:
-        double operator()(double z) override
+        double operator()(double z) const override
         {
             return fmax(0.0, z);
         }
 
-        double derivative(double z) override
+        double derivative(double z) const override
         {
             return z > 0.0 ? 1.0 : 0.0;
         }
@@ -72,12 +72,12 @@ namespace nn::activations
 
         }
 
-        double operator()(double z) override
+        double operator()(double z) const override
         {
             return fmax(alpha * z, z);
         }
 
-        double derivative(double z) override
+        double derivative(double z) const override
         {
             return z > 0.0 ? 1.0 : 0.0;
         }
@@ -93,13 +93,13 @@ namespace nn::activations
 
         }
 
-        double operator()(double z) override
+        double operator()(double z) const override
         {
 
             return z > 0 ? z : alpha * (exp(z) - 1);
         }
 
-        double derivative(double z) override
+        double derivative(double z) const override
         {
             return z > 0.0 ? 1.0 : alpha * exp(z);
         }

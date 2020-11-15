@@ -85,11 +85,11 @@ void nn::Network::setWeights(int index, const std::vector<std::map<nn::abs::Neur
     layers[index]->setWeights(weights);
 }
 
-std::vector<double> nn::Network::calculate() const
+std::vector<double> nn::Network::calculate()
 {
     areLayersGiven();
-    std::vector<double> result = layers[size - 1]->calculate();
     resetCaches();
+    std::vector<double> result = layers[size - 1]->calculate();
     return result;
 }
 
@@ -141,13 +141,19 @@ std::shared_ptr<nn::abs::Layer> nn::Network::getLayer(int index)
     return layers[index];
 }
 
-void nn::Network::fit(const std::vector<std::vector<double>>& x, const std::vector<std::vector<double>>& y, int epochs,
+void nn::Network::fit(const std::vector<std::vector<double>>& x, const std::vector<std::vector<double>>& y, double learningRate, int epochs,
                       int batchSize)
 {
-    backpropagator->fit(x, y, epochs, batchSize);
+    backpropagator->fit(x, y, learningRate, epochs, batchSize);
 }
 
-void nn::Network::fit(const std::vector<std::vector<double>>& x, const std::vector<std::vector<double>>& y, int epochs)
+void nn::Network::fit(const std::vector<std::vector<double>>& x, const std::vector<std::vector<double>>& y, double learingRate, int epochs)
 {
-    backpropagator->fit(x, y, epochs);
+    backpropagator->fit(x, y, learingRate, epochs);
+}
+
+std::vector<double> nn::Network::calculate(std::vector<double> values)
+{
+    setInputs(values);
+    return calculate();
 }
