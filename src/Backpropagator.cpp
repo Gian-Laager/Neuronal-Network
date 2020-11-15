@@ -49,7 +49,7 @@ void nn::Backpropagator::fit(const std::vector<std::vector<double>>& x, const st
     {
         std::vector<std::vector<NeuronGradient>> gradient(net->getNumberOfLayers());
         for (int l = 0; l < net->getNumberOfLayers(); l++)
-            gradient[l].reserve(net->getLayer(l)->getSize());
+            gradient[l] = std::vector<NeuronGradient>(net->getLayer(l)->getSize());
 
         for (int m = 0; m < batchSize; m++)
         {
@@ -81,7 +81,8 @@ void nn::Backpropagator::fit(const std::vector<std::vector<double>>& x, const st
                                     nl_1k->getValue() * nlj->getActivation()->derivative(nlj->getZ()) *
                                     gradient[l][j].activationGradient / m;
 
-                    gradient[l][j].biasGradient = nlj->getActivation()->derivative(nlj->getZ()) * gradient[l][j].activationGradient / m;
+                    gradient[l][j].biasGradient =
+                            nlj->getActivation()->derivative(nlj->getZ()) * gradient[l][j].activationGradient / m;
 
                 }
             }
@@ -90,7 +91,8 @@ void nn::Backpropagator::fit(const std::vector<std::vector<double>>& x, const st
         for (int l = 0; l < net->getNumberOfLayers(); l++)
             for (int j = 0; j < net->getLayer(l)->getSize(); j++)
             {
-                net->getLayer(l)->getNeurons()[j]->setB(net->getLayer(l)->getNeurons()[j]->getB() + gradient[l][j].biasGradient / batchSize);
+                net->getLayer(l)->getNeurons()[j]->setB(
+                        net->getLayer(l)->getNeurons()[j]->getB() + gradient[l][j].biasGradient / batchSize);
                 for (auto&& k : gradient[l][j].weightsGradient)
                     net->getLayer(l)->getNeurons()[j]->getConnectionsPreviousLayer()[k.first]->w = k.second;
             }

@@ -110,7 +110,7 @@ double nn::InputNeuron::getValue() const
 {
     if (!cacheSet)
     {
-        cacheActivation = (*activationFunction)(cacheZ);
+        cacheActivation = (*activationFunction)(getZ());
         cacheSet = true;
     }
 

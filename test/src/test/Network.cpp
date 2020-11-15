@@ -75,23 +75,23 @@ TEST_F(Network, Callculate_WillTheValueBeCallculatedCorrectly)
     class FirstLayerActivation : public nn::abs::Activation
     {
     public:
-        double operator()(double z) override { return z - 1; }
+        double operator()(double z) const override { return z - 1; }
 
-        double derivative(double z) override { return 1; }
+        double derivative(double z) const override { return 1; }
     };
     class SecondLayerActivation : public nn::abs::Activation
     {
     public:
-        double operator()(double z) override { return 1 / z; }
+        double operator()(double z) const override { return 1 / z; }
 
-        double derivative(double z) override { return 1; }
+        double derivative(double z) const override { return 1; }
     };
     class ThirdLayerActivation : public nn::abs::Activation
     {
     public:
-        double operator()(double z) override { return z * z; }
+        double operator()(double z) const override { return z * z; }
 
-        double derivative(double z) override { return 1; }
+        double derivative(double z) const override { return 1; }
     };
 
     nn::Network net{3};

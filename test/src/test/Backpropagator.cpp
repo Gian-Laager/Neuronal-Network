@@ -29,19 +29,19 @@ TEST_F(Backpropagator, Fit_WillThrowExceptionWhenVectorIsInvalid)
     std::vector<std::vector<double>> simpleInputUnequalSize = {std::vector<double>(simpleSizeInput)};
     simpleNetwork.initializeFitting(std::make_shared<nn::losses::MSE>());
 
-    ASSERT_THROW(simpleNetwork.fit(simpleInvalidInput, simpleValidOut, 1),
+    ASSERT_THROW(simpleNetwork.fit(simpleInvalidInput, simpleValidOut,1.0, 1),
                  nn::Backpropagator::InvalidVectorSize);
 
-    ASSERT_THROW(simpleNetwork.fit(simpleValidInput, simpleInvalidOut, 1),
+    ASSERT_THROW(simpleNetwork.fit(simpleValidInput, simpleInvalidOut,1.0, 1),
                  nn::Backpropagator::InvalidVectorSize);
 
-    ASSERT_THROW(simpleNetwork.fit(simpleInvalidInput, simpleInvalidOut, 1),
+    ASSERT_THROW(simpleNetwork.fit(simpleInvalidInput, simpleInvalidOut,1.0, 1),
                  nn::Backpropagator::InvalidVectorSize);
 
-    ASSERT_THROW(simpleNetwork.fit(simpleInputUnequalSize, simpleOutUnequalSize, 1),
+    ASSERT_THROW(simpleNetwork.fit(simpleInputUnequalSize, simpleOutUnequalSize,1.0, 1),
                  nn::Backpropagator::InvalidVectorSize);
 
-    ASSERT_NO_THROW(simpleNetwork.fit(simpleValidInput, simpleValidOut, 1));
+    ASSERT_NO_THROW(simpleNetwork.fit(simpleValidInput, simpleValidOut,1.0, 1));
 
     int complexSizeInput = complexNetwork.getInputLayerSize();
     int complexSizeOut = complexNetwork.getOutputLayerSize();
@@ -55,33 +55,33 @@ TEST_F(Backpropagator, Fit_WillThrowExceptionWhenVectorIsInvalid)
     std::vector<std::vector<double>> complexInputUnequalSize = {std::vector<double>(complexSizeInput)};
     complexNetwork.initializeFitting(std::make_shared<nn::losses::MSE>());
 
-    ASSERT_THROW(complexNetwork.fit(complexInvalidInput, complexValidOut, 1),
+    ASSERT_THROW(complexNetwork.fit(complexInvalidInput, complexValidOut,1.0, 1),
                  nn::Backpropagator::InvalidVectorSize);
 
-    ASSERT_THROW(complexNetwork.fit(complexValidInput, complexInvalidOut, 1),
+    ASSERT_THROW(complexNetwork.fit(complexValidInput, complexInvalidOut,1.0, 1),
                  nn::Backpropagator::InvalidVectorSize);
 
-    ASSERT_THROW(complexNetwork.fit(complexInvalidInput, complexInvalidOut, 1),
+    ASSERT_THROW(complexNetwork.fit(complexInvalidInput, complexInvalidOut,1.0, 1),
                  nn::Backpropagator::InvalidVectorSize);
 
-    ASSERT_THROW(complexNetwork.fit(complexInputUnequalSize, complexOutUnequalSize, 1),
+    ASSERT_THROW(complexNetwork.fit(complexInputUnequalSize, complexOutUnequalSize,1.0, 1),
                  nn::Backpropagator::InvalidVectorSize);
 
-    ASSERT_NO_THROW(complexNetwork.fit(complexValidInput, complexValidOut, 1));
+    ASSERT_NO_THROW(complexNetwork.fit(complexValidInput, complexValidOut,1.0, 1));
 }
 
 TEST_F(Backpropagator, Fit_WillThrowWhenBackpropagatorIsntIntialized)
 {
     ASSERT_THROW(simpleNetwork.fit({std::vector<double>(simpleNetwork.getInputLayerSize())},
-                                   {std::vector<double>(simpleNetwork.getOutputLayerSize())}, 1),
+                                   {std::vector<double>(simpleNetwork.getOutputLayerSize())},1.0, 1),
                  nn::Backpropagator::NotInitializedException);
 
     simpleNetwork.initializeFitting(std::make_shared<nn::losses::MSE>());
     ASSERT_NO_THROW(simpleNetwork.fit({std::vector<double>(simpleNetwork.getInputLayerSize())},
-                                      {std::vector<double>(simpleNetwork.getOutputLayerSize())}, 1));
+                                      {std::vector<double>(simpleNetwork.getOutputLayerSize())}, 1.0,1));
 
     ASSERT_NO_THROW(simpleNetwork.fit({std::vector<double>(simpleNetwork.getInputLayerSize())},
-                                      {std::vector<double>(simpleNetwork.getOutputLayerSize())}, 1));
+                                      {std::vector<double>(simpleNetwork.getOutputLayerSize())},1.0, 1));
 }
 
 TEST_F(Backpropagator, Fit_WillThrowWhenBatchSizeIsInvalid)
@@ -103,19 +103,19 @@ TEST_F(Backpropagator, Fit_WillThrowWhenBatchSizeIsInvalid)
                                       {std::vector<double>(simpleNetwork.getOutputLayerSize())}, 1, 1));
 
     ASSERT_NO_THROW(simpleNetwork.fit({std::vector<double>(simpleNetwork.getInputLayerSize())},
-                                      {std::vector<double>(simpleNetwork.getOutputLayerSize())}, 1));
+                                      {std::vector<double>(simpleNetwork.getOutputLayerSize())},1.0, 1));
 }
 
 TEST_F(Backpropagator, Fit_WillThrowWhenEpochCountIsInvalid)
 {
     simpleNetwork.initializeFitting(std::make_shared<nn::losses::MSE>());
     ASSERT_THROW(simpleNetwork.fit({std::vector<double>(simpleNetwork.getInputLayerSize())},
-                                   {std::vector<double>(simpleNetwork.getOutputLayerSize())}, -1),
+                                   {std::vector<double>(simpleNetwork.getOutputLayerSize())},1.0, -1),
                  nn::Backpropagator::InvalidEpochCount);
 
     ASSERT_NO_THROW(simpleNetwork.fit({std::vector<double>(simpleNetwork.getInputLayerSize())},
-                                      {std::vector<double>(simpleNetwork.getOutputLayerSize())}, 1));
+                                      {std::vector<double>(simpleNetwork.getOutputLayerSize())},1.0, 1));
 
     ASSERT_NO_THROW(simpleNetwork.fit({std::vector<double>(simpleNetwork.getInputLayerSize())},
-                                      {std::vector<double>(simpleNetwork.getOutputLayerSize())}, 0));
+                                      {std::vector<double>(simpleNetwork.getOutputLayerSize())},1.0, 0));
 }
