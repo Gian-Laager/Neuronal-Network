@@ -69,20 +69,20 @@ void nn::Backpropagator::fit(const std::vector<std::vector<double>>& x, const st
                     {
                         for (int j_ = 0; j_ < net->getLayer(l + 1)->getSize(); j_++)
                             gradient[l][j].activationGradient +=
-                                    gradient[l][j].weightsGradient[net->getLayer(l + 1)->getNeurons()[j_].get()] *
-                                    net->getLayer(l)->getNeurons()[j_]->getActivation()->derivative(
-                                            net->getLayer(l)->getNeurons()[j_]->getZ()) *
-                                    gradient[l + 1][j_].activationGradient / m;
+                                    net->getLayer(l + 1)->getNeurons()[j_]->getConnectionsPreviousLayer()[nlj.get()]->w *
+                                    net->getLayer(l + 1)->getNeurons()[j_]->getActivation()->derivative(
+                                            net->getLayer(l + 1)->getNeurons()[j_]->getZ()) *
+                                    gradient[l + 1][j_].activationGradient / (m + 1);
                     }
 
                     if (l > 0)
-                        for (auto&& nl_1k : net->getLayer(l - 1)->getNeurons())
+                        for (auto& nl_1k : net->getLayer(l - 1)->getNeurons())
                             gradient[l][j].weightsGradient[nl_1k.get()] +=
                                     nl_1k->getValue() * nlj->getActivation()->derivative(nlj->getZ()) *
-                                    gradient[l][j].activationGradient / m;
+                                    gradient[l][j].activationGradient / (m + 1);
 
                     gradient[l][j].biasGradient =
-                            nlj->getActivation()->derivative(nlj->getZ()) * gradient[l][j].activationGradient / m;
+                            nlj->getActivation()->derivative(nlj->getZ()) * gradient[l][j].activationGradient / (m + 1);
 
                 }
             }
@@ -93,8 +93,9 @@ void nn::Backpropagator::fit(const std::vector<std::vector<double>>& x, const st
             {
                 net->getLayer(l)->getNeurons()[j]->setB(
                         net->getLayer(l)->getNeurons()[j]->getB() + gradient[l][j].biasGradient / batchSize);
-                for (auto&& k : gradient[l][j].weightsGradient)
-                    net->getLayer(l)->getNeurons()[j]->getConnectionsPreviousLayer()[k.first]->w = k.second;
+                if (l > 0)
+                    for (auto& k : gradient[l][j].weightsGradient)
+                        net->getLayer(l)->getNeurons()[j]->getConnectionsPreviousLayer()[k.first]->w = k.second;
             }
         std::shuffle(trainData.begin(), trainData.end(), g);
     }

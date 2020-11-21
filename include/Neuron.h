@@ -41,7 +41,7 @@ namespace nn
 
         void resetCache() const override;
 
-        double getZ() const;
+        double getZ() const override;
 
         std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsNextLayer() override;
 
@@ -57,7 +57,7 @@ namespace nn
 
         void setActivation(std::shared_ptr<nn::abs::Activation> f) override;
 
-        std::shared_ptr<const nn::abs::Activation> getActivation() const;
+        std::shared_ptr<const nn::abs::Activation> getActivation() const override;
 
         void setWeights(std::map<nn::abs::Neuron*, double> weights) override;
 
@@ -108,7 +108,7 @@ namespace nn
 
         void setActivation(std::shared_ptr<nn::abs::Activation> f) override;
 
-        std::shared_ptr<const nn::abs::Activation> getActivation() const;
+        std::shared_ptr<const nn::abs::Activation> getActivation() const override;
 
         void setWeights(std::map<nn::abs::Neuron*, double> weights) override;
 
