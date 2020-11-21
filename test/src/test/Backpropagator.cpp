@@ -21,9 +21,10 @@ void nn::test::Backpropagator::SetUp()
     simpleNetwork.setBias(2, {5.0});
 
     complexNetwork = nn::Network{3};
-    complexNetwork.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(2));
-    complexNetwork.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(3));
-    complexNetwork.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(2));
+    complexNetwork.pushLayer(
+            std::make_shared<nn::InputLayer<nn::InputNeuron>>(2, std::make_shared<nn::activations::Sigmoid>()));
+    complexNetwork.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(3, std::make_shared<nn::activations::Sigmoid>()));
+    complexNetwork.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(2, std::make_shared<nn::activations::Tanh>()));
 }
 
 TEST_F(Backpropagator, Fit_WillThrowExceptionWhenVectorIsInvalid)
@@ -126,4 +127,30 @@ TEST_F(Backpropagator, Fit_WillThrowWhenEpochCountIsInvalid)
 
     ASSERT_NO_THROW(simpleNetwork.fit({std::vector<double>(simpleNetwork.getInputLayerSize())},
                                       {std::vector<double>(simpleNetwork.getOutputLayerSize())}, 1.0, 0));
+}
+
+TEST_F(Backpropagator, Fit_WillGradientBeCallculatedCorrectlySimpleNetwork)
+{
+    std::vector<std::vector<double>> xs = {{0.5},
+                                           {1.0},
+                                           {1.5}};
+    std::vector<std::vector<double>> ys = {{1.0},
+                                           {2.0},
+                                           {3.0}};
+    double learningRate = 1e-4;
+
+    simpleNetwork.initializeFitting(std::make_shared<nn::losses::MSE>());
+    simpleNetwork.fit(xs, ys, learningRate, 1);
+
+    double biases[] = {4.9558125, 4.9778125, 4.99105};
+    double weights[] = {0.0, 1.8668125, 2.34775};
+
+    for (int l = 0; l < simpleNetwork.getNumberOfLayers(); l++)
+    {
+        EXPECT_EQ(simpleNetwork.getLayer(l)->getNeurons()[0]->getB(), biases[l]);
+        if (l > 0)
+            EXPECT_EQ(simpleNetwork.getLayer(l)->getNeurons()[0]->getConnectionsPreviousLayer()[simpleNetwork.getLayer(
+                    l - 1)->getNeurons()[0].get()]->w, weights[l]);
+    }
+
 }
