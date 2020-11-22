@@ -24,7 +24,9 @@ set(HEAD
         include/Backpropagator.h
         include/Activations.h
         include/abstract/Activation.h
-        include/abstract/LossFunction.h include/LossFunctions.h)
+        include/abstract/LossFunction.h
+        include/LossFunctions.h
+)
 
 set(PCH
         include/pch.h
@@ -45,13 +47,15 @@ set(TEST_SRC
         test/src/test/Neuron.cpp
         test/src/test/Layer.cpp
         test/src/test/Network.cpp
-        test/src/test/Backpropagator.cpp)
+        test/src/test/Backpropagator.cpp
+)
 
 set(TEST_HEAD
         test/include/test/Neuron.h
         test/include/test/Layer.h
         test/include/test/Network.h
-        test/include/test/Backpropagator.h)
+        test/include/test/Backpropagator.h
+)
 
 set(TEST_PCH
         test/include/test/pch.h
@@ -73,5 +77,11 @@ target_link_directories(${PROJECT_NAME}_TEST PRIVATE
 
 target_link_libraries(${PROJECT_NAME}_TEST PRIVATE
         libgtest.dylib
+        ${PROJECT_NAME}
+)
+
+add_executable(PerformanceTest test/src/PerformanceTest.cpp)
+
+target_link_libraries(PerformanceTest PRIVATE
         ${PROJECT_NAME}
 )

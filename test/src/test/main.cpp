@@ -2,7 +2,7 @@
 
 #include "Neural_Network.h"
 
-//#define PERFORMANCE_TEST
+#define PERFORMANCE_TEST
 
 void performanceTest()
 {

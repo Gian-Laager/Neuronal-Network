@@ -151,7 +151,7 @@ void nn::InputNeuron::connect(nn::abs::Neuron* n)
 
 std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> nn::InputNeuron::getConnectionsPreviousLayer()
 {
-    return std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>{};
+    return std::move(std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>{});
 }
 
 double nn::InputNeuron::getB() const

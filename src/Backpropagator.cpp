@@ -51,16 +51,22 @@ void nn::Backpropagator::fit(const std::vector<std::vector<double>>& x, const st
         for (int l = 0; l < net->getNumberOfLayers(); l++)
             gradient[l] = std::vector<NeuronGradient>(net->getLayer(l)->getSize());
 
+        double loss = 0.0;
         for (int m = 0; m < batchSize; m++)
         {
             std::vector<double> predict = net->calculate(trainData[m].first);
+#ifdef NN_NETWORK_PRINT_LOSS
+            for (int j =0; j < predict.size(); j++)
+                loss += (*lossF)(predict[j], trainData[m].second[j]);
+            loss /= predict.size();
+#endif
 
             for (int l = net->getNumberOfLayers() - 1; l >= 0; l--)
             {
                 gradient[l].reserve(net->getLayer(l)->getSize());
                 for (int j = 0; j < net->getLayer(l)->getSize(); j++)
                 {
-                    std::shared_ptr<nn::abs::Neuron> nlj = net->getLayer(l)->getNeurons()[j];
+                    std::shared_ptr<nn::abs::Neuron> nlj = getNeuronsNoCopy(net->getLayer(l))[j];
                     gradient[l][j].n = nlj;
 
                     if (l == net->getNumberOfLayers() - 1)
@@ -93,12 +99,17 @@ void nn::Backpropagator::fit(const std::vector<std::vector<double>>& x, const st
             for (int j = 0; j < net->getLayer(l)->getSize(); j++)
             {
                 net->getLayer(l)->getNeurons()[j]->setB(
-                        net->getLayer(l)->getNeurons()[j]->getB() + learningRate *  gradient[l][j].biasGradient / batchSize);
+                        net->getLayer(l)->getNeurons()[j]->getB() +
+                        learningRate * gradient[l][j].biasGradient / batchSize);
                 if (l > 0)
                     for (auto& k : gradient[l][j].weightsGradient)
-                        net->getLayer(l)->getNeurons()[j]->getConnectionsPreviousLayer()[k.first]->w += learningRate * k.second / batchSize;
+                        net->getLayer(l)->getNeurons()[j]->getConnectionsPreviousLayer()[k.first]->w +=
+                                learningRate * k.second / batchSize;
             }
+#ifdef NN_NETWORK_PRINT_LOSS
+        std::cout << "loss: " << loss / batchSize << "\n";
         std::shuffle(trainData.begin(), trainData.end(), g);
+#endif
     }
 }
 

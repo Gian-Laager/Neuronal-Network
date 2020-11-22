@@ -7,6 +7,7 @@
 #include "Layer.h"
 #include "Network.h"
 #include "Activations.h"
+#include "LossFunctions.h"
 
 namespace nn
 {
