@@ -89,8 +89,7 @@ std::vector<double> nn::Network::calculate()
 {
     areLayersGiven();
     resetCaches();
-    std::vector<double> result = layers[size - 1]->calculate();
-    return result;
+    return layers[size - 1]->calculate();
 }
 
 void nn::Network::areLayersGiven() const
