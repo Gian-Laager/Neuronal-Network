@@ -43,6 +43,7 @@ namespace nn
         void connect(nn::abs::Layer* l) override;
 
         std::vector<std::shared_ptr<nn::abs::Neuron>> getNeurons() override;
+        std::shared_ptr<nn::abs::Neuron> getNeuron(int index) override;
 
         void setActivation(std::shared_ptr<nn::abs::Activation> f) override;
 
@@ -53,6 +54,8 @@ namespace nn
         std::vector<double> calculate() const override;
 
         std::vector<std::shared_ptr<const nn::abs::Neuron>> getNeurons() const override;
+
+        std::shared_ptr<const nn::abs::Neuron> getNeuron(int index) const override;
 
         void resetCaches() const override;
 
@@ -90,12 +93,15 @@ namespace nn
         std::vector<std::shared_ptr<nn::abs::InputNeuron>> getInputNeurons() override;
 
         std::vector<std::shared_ptr<const nn::abs::Neuron>> getNeurons() const override;
+        std::shared_ptr<const nn::abs::Neuron> getNeuron(int index) const override;
 
         int getSize() const override;
 
         void connect(Layer* l) override;
 
         std::vector<std::shared_ptr<nn::abs::Neuron>> getNeurons() override;
+
+        std::shared_ptr<nn::abs::Neuron> getNeuron(int index) override;
 
         void setActivation(std::shared_ptr<nn::abs::Activation> f) override;
 
@@ -214,6 +220,20 @@ requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
 std::vector<std::shared_ptr<const nn::abs::Neuron>> nn::Layer<NeuronType>::getNeurons() const
 {
     return *(const std::vector<std::shared_ptr<const nn::abs::Neuron>>*) ((long) &neurons);
+}
+
+template<typename NeuronType>
+requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
+std::shared_ptr<const nn::abs::Neuron> nn::Layer<NeuronType>::getNeuron(int index) const
+{
+    return neurons[index];
+}
+
+template<typename NeuronType>
+requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
+std::shared_ptr<nn::abs::Neuron> nn::Layer<NeuronType>::getNeuron(int index)
+{
+    return neurons[index];
 }
 
 template<typename NeuronType>
@@ -361,6 +381,20 @@ requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
 std::vector<std::shared_ptr<const nn::abs::Neuron>> nn::InputLayer<NeuronType>::getNeurons() const
 {
     return *(const std::vector<std::shared_ptr<const nn::abs::Neuron>>*) ((long*) &neurons);
+}
+
+template<typename NeuronType>
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+std::shared_ptr<nn::abs::Neuron> nn::InputLayer<NeuronType>::getNeuron(int index)
+{
+    return neurons[index];
+}
+
+template<typename NeuronType>
+requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
+std::shared_ptr<const nn::abs::Neuron> nn::InputLayer<NeuronType>::getNeuron(int index) const
+{
+    return neurons[index];
 }
 
 

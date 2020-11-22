@@ -18,6 +18,10 @@ namespace nn::abs
 
         virtual std::map<Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsPreviousLayer() = 0;
 
+        virtual std::shared_ptr<nn::abs::Connection> getConnectionNextLayer(nn::abs::Neuron* index) = 0;
+
+        virtual std::shared_ptr<nn::abs::Connection> getConnectionPreviousLayer(nn::abs::Neuron* index) = 0;
+
         virtual void connect(Neuron* n) = 0;
 
         virtual double getValue() const = 0;

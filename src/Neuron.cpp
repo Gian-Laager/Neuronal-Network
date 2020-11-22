@@ -98,6 +98,16 @@ double nn::Neuron::getZ() const
     return cacheZ;
 }
 
+std::shared_ptr<nn::abs::Connection> nn::Neuron::getConnectionNextLayer(nn::abs::Neuron* index)
+{
+    return connectionsNextLayer[index];
+}
+
+std::shared_ptr<nn::abs::Connection> nn::Neuron::getConnectionPreviousLayer(nn::abs::Neuron* index)
+{
+    return connectionsPreviousLayer[index];
+}
+
 nn::Connection::Connection(nn::abs::Neuron* from, nn::abs::Neuron* to) : from(from),
                                                                          to(to) {}
 
@@ -209,4 +219,14 @@ double nn::InputNeuron::getZ() const
         cacheZSet = true;
     }
     return cacheZ;
+}
+
+std::shared_ptr<nn::abs::Connection> nn::InputNeuron::getConnectionNextLayer(nn::abs::Neuron* index)
+{
+    return connectionsNextLayer[index];
+}
+
+std::shared_ptr<nn::abs::Connection> nn::InputNeuron::getConnectionPreviousLayer(nn::abs::Neuron* index)
+{
+    return std::make_shared<nn::Connection>(nullptr, this);
 }

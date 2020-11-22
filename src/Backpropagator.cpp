@@ -66,7 +66,7 @@ void nn::Backpropagator::fit(const std::vector<std::vector<double>>& x, const st
                 gradient[l].reserve(net->getLayer(l)->getSize());
                 for (int j = 0; j < net->getLayer(l)->getSize(); j++)
                 {
-                    std::shared_ptr<nn::abs::Neuron> nlj = getNeuronsNoCopy(net->getLayer(l))[j];
+                    std::shared_ptr<nn::abs::Neuron> nlj = net->getLayer(l)->getNeuron(j);
                     gradient[l][j].n = nlj;
 
                     if (l == net->getNumberOfLayers() - 1)
@@ -75,9 +75,9 @@ void nn::Backpropagator::fit(const std::vector<std::vector<double>>& x, const st
                     {
                         for (int j_ = 0; j_ < net->getLayer(l + 1)->getSize(); j_++)
                             gradient[l][j].activationGradient +=
-                                    net->getLayer(l + 1)->getNeurons()[j_]->getConnectionsPreviousLayer()[nlj.get()]->w *
-                                    net->getLayer(l + 1)->getNeurons()[j_]->getActivation()->derivative(
-                                            net->getLayer(l + 1)->getNeurons()[j_]->getZ()) *
+                                    net->getLayer(l + 1)->getNeuron(j_)->getConnectionPreviousLayer(nlj.get())->w *
+                                    net->getLayer(l + 1)->getNeuron(j_)->getActivation()->derivative(
+                                            net->getLayer(l + 1)->getNeuron(j_)->getZ()) *
                                     gradient[l + 1][j_].activationGradient / (m + 1);
                         gradient[l][j].activationGradient /= net->getLayer(l + 1)->getSize();
                     }
@@ -98,12 +98,12 @@ void nn::Backpropagator::fit(const std::vector<std::vector<double>>& x, const st
         for (int l = 0; l < net->getNumberOfLayers(); l++)
             for (int j = 0; j < net->getLayer(l)->getSize(); j++)
             {
-                net->getLayer(l)->getNeurons()[j]->setB(
-                        net->getLayer(l)->getNeurons()[j]->getB() +
+                net->getLayer(l)->getNeuron(j)->setB(
+                        net->getLayer(l)->getNeuron(j)->getB() +
                         learningRate * gradient[l][j].biasGradient / batchSize);
                 if (l > 0)
                     for (auto& k : gradient[l][j].weightsGradient)
-                        net->getLayer(l)->getNeurons()[j]->getConnectionsPreviousLayer()[k.first]->w +=
+                        net->getLayer(l)->getNeuron(j)->getConnectionPreviousLayer(k.first)->w +=
                                 learningRate * k.second / batchSize;
             }
 #ifdef NN_NETWORK_PRINT_LOSS

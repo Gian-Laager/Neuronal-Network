@@ -54,7 +54,7 @@ TEST_F(Neuron, GetValue2Neurons_WillReturnRightValue)
     std::shared_ptr<nn::abs::Activation> activationF = std::make_shared<nn::activations::Linear>();
 
     n1.setActivation(activationF);
-    n0.getConnectionsNextLayer()[&n1]->w = w;
+    n0.getConnectionNextLayer(&n1)->w = w;
     n1.setB(b);
 
     double result = beginValue;
@@ -76,11 +76,11 @@ TEST_F(Neuron, SetWeights_WillWeightsBeSetRight)
     std::map<nn::abs::Neuron*, double> weights = {{&n1, 0.5}, {&n2, 0.3}};
     n0.setWeights(weights);
 
-    ASSERT_EQ(n0.getConnectionsNextLayer()[&n1]->w, weights[&n1]);
-    ASSERT_EQ(n0.getConnectionsNextLayer()[&n2]->w, weights[&n2]);
+    ASSERT_EQ(n0.getConnectionNextLayer(&n1)->w, weights[&n1]);
+    ASSERT_EQ(n0.getConnectionNextLayer(&n2)->w, weights[&n2]);
 
-    ASSERT_EQ(n1.getConnectionsPreviousLayer()[dynamic_cast<nn::abs::Neuron*>(&n0)]->w, weights[&n1]);
-    ASSERT_EQ(n2.getConnectionsPreviousLayer()[dynamic_cast<nn::abs::Neuron*>(&n0)]->w, weights[&n2]);
+    ASSERT_EQ(n1.getConnectionPreviousLayer(dynamic_cast<nn::abs::Neuron*>(&n0))->w, weights[&n1]);
+    ASSERT_EQ(n2.getConnectionPreviousLayer(dynamic_cast<nn::abs::Neuron*>(&n0))->w, weights[&n2]);
 }
 
 TEST_F(Neuron, SetB_WillBiasBeSetCorrectly)
