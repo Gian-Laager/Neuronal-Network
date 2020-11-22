@@ -152,5 +152,4 @@ TEST_F(Backpropagator, Fit_WillGradientBeCallculatedCorrectlySimpleNetwork)
             EXPECT_EQ(simpleNetwork.getLayer(l)->getNeuron(0)->getConnectionPreviousLayer(simpleNetwork.getLayer(
                     l - 1)->getNeuron(0).get())->w, weights[l]);
     }
-
 }

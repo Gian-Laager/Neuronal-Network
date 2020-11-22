@@ -3,8 +3,8 @@
 #include "Neural_Network.h"
 
 #define PERFORMANCE_TEST
-
-void performanceTest()
+#ifdef PERFORMANCE_TEST
+TEST(Performance, Predict284_16_16_9)
 {
 //    auto _tp1 = std::chrono::high_resolution_clock::now();
     nn::Network net{3};
@@ -22,13 +22,12 @@ void performanceTest()
         e = *(double*) &r;
     }
 
-    net.setInputs(inputVector);
-    int iterations = 100;
+    int iterations = 10000;
     std::vector<std::chrono::duration<double>> times(iterations);
     for (int i = 0; i < iterations; i++)
     {
         auto tp1 = std::chrono::high_resolution_clock::now();
-        std::vector<double> resultCalc = net.calculate();
+        std::vector<double> resultCalc = net.calculate(inputVector);
         auto tp2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsedTime = tp2 - tp1;
         std::cout << "Time spend on net.calculate: " << elapsedTime.count() * 1000 << " ms" << std::endl;
@@ -41,12 +40,10 @@ void performanceTest()
 
     std::cout << "average time: " << addedTime / iterations << " ms" << std::endl;
 }
+#endif
 
 int main()
 {
-#ifdef PERFORMANCE_TEST
-    performanceTest();
-#endif
     testing::InitGoogleTest();
     return RUN_ALL_TESTS();
 }

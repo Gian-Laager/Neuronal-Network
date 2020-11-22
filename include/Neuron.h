@@ -49,9 +49,9 @@ namespace nn
 
         std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsPreviousLayer() override;
 
-        std::shared_ptr<nn::abs::Connection> getConnectionNextLayer(nn::abs::Neuron* index);
+        std::shared_ptr<nn::abs::Connection> getConnectionNextLayer(nn::abs::Neuron* index) override;
 
-        std::shared_ptr<nn::abs::Connection> getConnectionPreviousLayer(nn::abs::Neuron* index);
+        std::shared_ptr<nn::abs::Connection> getConnectionPreviousLayer(nn::abs::Neuron* index) override;
 
         double getValue() const override;
 
@@ -106,9 +106,9 @@ namespace nn
 
         std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsPreviousLayer() override;
 
-        std::shared_ptr<nn::abs::Connection> getConnectionNextLayer(nn::abs::Neuron* index);
+        std::shared_ptr<nn::abs::Connection> getConnectionNextLayer(nn::abs::Neuron* index) override;
 
-        std::shared_ptr<nn::abs::Connection> getConnectionPreviousLayer(nn::abs::Neuron* index);
+        std::shared_ptr<nn::abs::Connection> getConnectionPreviousLayer(nn::abs::Neuron* index) override;
 
         double getB() const override;
 
