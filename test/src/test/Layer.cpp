@@ -1,3 +1,4 @@
+#include <Activations.h>
 #include "test/Layer.h"
 
 using nn::test::Layer;
@@ -41,16 +42,16 @@ TEST_F(Layer, Connect_WillEveryNeuronBeConnectedToTheNeuronsInTheNextLayer)
 
 TEST_F(Layer, WillSetActivationSetActivationsOfEveryNeuron)
 {
-    std::function<double(double)> f = [](double z) -> double { return z; };
+    std::shared_ptr<nn::abs::Activation> f = std::make_shared<nn::activations::Linear>();
     layer.setActivation(f);
 
     for (auto& n : layer.getNeurons())
-        ASSERT_EQ(getActivation((nn::Neuron*) n.get())(5.0), f(5.0));
+        ASSERT_EQ((*getActivation((nn::Neuron*) n.get()))(5.0), (*f)(5.0));
 }
 
-std::function<double(double)> Layer::getActivation(nn::Neuron* n)
+std::shared_ptr<nn::abs::Activation> Layer::getActivation(nn::Neuron* n)
 {
-    return *(std::function<double(double)>*) ((long) n + 64);
+    return *(std::shared_ptr<nn::abs::Activation>*) ((long) n + 64);
 }
 
 TEST_F(Layer, SetValues_WillThrowWhenVectorIsInvalidSize)

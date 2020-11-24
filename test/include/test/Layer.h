@@ -25,7 +25,7 @@ namespace nn::test
                                                                       std::make_shared<nn::InputNeuron>(8.0),
                                                                       std::make_shared<nn::InputNeuron>(9.0)};
 
-        static std::function<double(double)> getActivation(nn::Neuron* n);
+        static std::shared_ptr<nn::abs::Activation> getActivation(nn::Neuron* n);
     };
 }
 
