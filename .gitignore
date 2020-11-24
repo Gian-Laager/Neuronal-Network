@@ -58,3 +58,5 @@ _deps
 
 *.DS_Store
 *.idea/
+
+cmake-build-relwithdebinfo/

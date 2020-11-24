@@ -2,6 +2,7 @@
 #define NEURONAL_NETWORK_ABSTRACT_LAYER_H
 
 #include "abstract/Neuron.h"
+#include "abstract/Activation.h"
 
 namespace nn::abs
 {
@@ -16,7 +17,13 @@ namespace nn::abs
 
         virtual std::vector<std::shared_ptr<nn::abs::Neuron>> getNeurons() = 0;
 
-        virtual void setActivation(std::function<double(double)> f) = 0;
+        virtual std::vector<std::shared_ptr<const nn::abs::Neuron>> getNeurons() const = 0;
+
+        virtual std::shared_ptr<nn::abs::Neuron> getNeuron(int index) = 0;
+
+        virtual std::shared_ptr<const nn::abs::Neuron> getNeuron(int index) const = 0;
+
+        virtual void setActivation(std::shared_ptr<nn::abs::Activation> f) = 0;
 
         virtual void setBias(const std::vector<double>& bs) = 0;
 
