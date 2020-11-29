@@ -14,31 +14,31 @@ namespace nn::abs
 
         virtual int getCapacityOfLayers() const = 0;
 
-        virtual void pushLayer(std::shared_ptr<nn::abs::Layer> l) = 0;
+        virtual void pushLayer(const std::shared_ptr<Layer>& l) = 0;
 
-        virtual void setInputs(std::vector<double> values) = 0;
+        virtual void setInputs(const std::vector<double>& values) = 0;
 
-        virtual std::vector<double> calculate(std::vector<double> values) = 0;
+        virtual const std::vector<double>& calculate(std::vector<double> values) = 0;
 
-        virtual std::vector<double> calculate() = 0;
+        virtual const std::vector<double>& calculate() = 0;
 
         virtual std::shared_ptr<const nn::abs::Layer> getLayer(int index) const = 0;
 
-        virtual std::shared_ptr<nn::abs::Layer> getLayer(int index) = 0;
+        virtual const std::shared_ptr<nn::abs::Layer>& getLayer(int index) = 0;
 
         virtual int getSize() const = 0;
 
-        virtual void setActivation(int index, std::shared_ptr<nn::abs::Activation> f) = 0;
+        virtual void setActivation(int index, const std::shared_ptr<Activation>& f) = 0;
 
         virtual void setBias(int index, std::vector<double> bs) = 0;
 
-        virtual void setWeights(int index, const std::vector<std::map<nn::abs::Neuron*, double>>& weights) = 0;
+        virtual void setWeights(int index, const std::vector<std::map<std::shared_ptr<nn::abs::Neuron>, double>>& weights) = 0;
 
         virtual void resetCaches() const = 0;
 
-        virtual void setBackpropagator(std::shared_ptr<nn::abs::Backpropagator> backprop) = 0;
+        virtual void setBackpropagator(const std::shared_ptr<Backpropagator>& b) = 0;
 
-        virtual void initializeFitting(std::shared_ptr<nn::abs::LossFunction> lossF) = 0;
+        virtual void initializeFitting(const std::shared_ptr<LossFunction>& lossF) = 0;
 
         virtual void fit(const std::vector<std::vector<double>>& x,
                          const std::vector<std::vector<double>>& y, double learningRate, int epochs, int batchSize) = 0;

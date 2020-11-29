@@ -11,11 +11,11 @@ namespace nn::test
     {
     public:
         nn::Neuron n;
-        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer = {
+        std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer = {
                 {nullptr, std::make_shared<Connection>(nullptr)}, {nullptr, std::make_shared<Connection>(nullptr)}, 
                 {nullptr, std::make_shared<Connection>(nullptr)}, {nullptr, std::make_shared<Connection>(nullptr)}, 
                 {nullptr, std::make_shared<Connection>(nullptr)}};
-        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer = {
+        std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer = {
                 {nullptr, std::make_shared<Connection>(nullptr)}, {nullptr, std::make_shared<Connection>(nullptr)},
                 {nullptr, std::make_shared<Connection>(nullptr)}, {nullptr, std::make_shared<Connection>(nullptr)},
                 {nullptr, std::make_shared<Connection>(nullptr)}};

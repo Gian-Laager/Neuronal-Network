@@ -15,7 +15,7 @@ namespace nn
         {
             std::shared_ptr<nn::abs::Neuron> n;
             double biasGradient;
-            std::map<nn::abs::Neuron*, double> weightsGradient;
+            std::map<std::shared_ptr<nn::abs::Neuron>, double> weightsGradient;
             double activationGradient;
         };
 
@@ -50,7 +50,7 @@ namespace nn
 
         double getWeightGradient(const std::vector<std::vector<NeuronGradient>>& gradient, int m, int l, int j,
                                  const std::shared_ptr<nn::abs::Neuron>& nlj,
-                                 const std::shared_ptr<nn::abs::Neuron>& nl_1k) const;
+                                 double nlk1Activation) const;
 
         void updateActivationGradient(std::vector<std::vector<NeuronGradient>>& gradient,
                                       const std::shared_ptr<nn::abs::Neuron>& nlj,
@@ -88,12 +88,14 @@ namespace nn
         void updateWeights(double learningRate, int batchSize,
                            const std::vector<std::vector<NeuronGradient>>& gradient, int l, int j);
 
+        void resetGradient(std::vector<std::vector<NeuronGradient>>& gradient) const;
+
         nn::abs::Network* net;
         std::shared_ptr<nn::abs::LossFunction> lossF;
         bool initialized = false;
 
     public:
-        void initialize(nn::abs::Network* n, std::shared_ptr<nn::abs::LossFunction> lossF) override;
+        void initialize(nn::abs::Network* n, const std::shared_ptr<nn::abs::LossFunction>& lossF) override;
 
         void fit(const std::vector<std::vector<double>>& x,
                  const std::vector<std::vector<double>>& y, double learningRate, int epochs, int batchSize) override;

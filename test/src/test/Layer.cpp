@@ -46,10 +46,10 @@ TEST_F(Layer, WillSetActivationSetActivationsOfEveryNeuron)
     layer.setActivation(f);
 
     for (auto& n : layer.getNeurons())
-        ASSERT_EQ((*getActivation((nn::Neuron*) n.get()))(5.0), (*f)(5.0));
+        ASSERT_EQ((*getActivation(n))(5.0), (*f)(5.0));
 }
 
-std::shared_ptr<nn::abs::Activation> Layer::getActivation(nn::Neuron* n)
+std::shared_ptr<nn::abs::Activation> Layer::getActivation(std::shared_ptr<nn::abs::Neuron> n)
 {
     return *(std::shared_ptr<nn::abs::Activation>*) ((long) n + 64);
 }

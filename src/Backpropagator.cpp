@@ -1,6 +1,6 @@
 #include "Backpropagator.h"
 
-void nn::Backpropagator::initialize(nn::abs::Network* n, std::shared_ptr<nn::abs::LossFunction> lossF)
+void nn::Backpropagator::initialize(nn::abs::Network* n, const std::shared_ptr<nn::abs::LossFunction>& lossF)
 {
     this->net = n;
     this->lossF = lossF;
@@ -43,11 +43,12 @@ void nn::Backpropagator::fit(const std::vector<std::vector<double>>& x, const st
 
     std::random_device rd;
     std::mt19937 g(rd());
+    std::vector<std::vector<NeuronGradient>> gradient = initializeGradient();
 
     for (int i = 0; i < epochs; i++)
     {
-        std::vector<std::vector<NeuronGradient>> gradient = initializeGradient();
-
+        if (i > 0)
+            resetGradient(gradient);
         double loss = 0.0;
         calculateGradient(batchSize, trainData, gradient, loss);
 
@@ -150,15 +151,15 @@ void nn::Backpropagator::updateWeightsGradient(std::vector<std::vector<NeuronGra
 {
     if (l > 0)
         for (auto& nl_1k : this->net->getLayer(l - 1)->getNeurons())
-            gradient[l][j].weightsGradient[nl_1k.get()] += this->getWeightGradient(gradient, batch, l, j, nlj, nl_1k);
+            gradient[l][j].weightsGradient[nl_1k] += this->getWeightGradient(gradient, batch, l, j, nlj, nl_1k->getValue());
 }
 
 double
 nn::Backpropagator::getWeightGradient(const std::vector<std::vector<NeuronGradient>>& gradient, int m, int l, int j,
                                       const std::shared_ptr<nn::abs::Neuron>& nlj,
-                                      const std::shared_ptr<nn::abs::Neuron>& nl_1k) const
+                                      double nlk1Activation) const
 {
-    return nl_1k->getValue() * nlj->getActivation()->derivative(nlj->getZ()) *
+    return nlk1Activation * nlj->getActivation()->derivative(nlj->getZ()) *
            gradient[l][j].activationGradient / (m + 1);
 }
 
@@ -176,7 +177,7 @@ nn::Backpropagator::getActivationGradient(const std::vector<std::vector<NeuronGr
     double currentGradient = 0.0;
     for (int j_ = 0; j_ < this->net->getLayer(l + 1)->getSize(); j_++)
         currentGradient +=
-                this->net->getLayer(l + 1)->getNeuron(j_)->getConnectionPreviousLayer(nlj.get())->w *
+                this->net->getLayer(l + 1)->getNeuron(j_)->getConnectionPreviousLayer(nlj)->w *
                 this->net->getLayer(l + 1)->getNeuron(j_)->getActivation()->derivative(
                         this->net->getLayer(l + 1)->getNeuron(j_)->getZ()) *
                 gradient[l + 1][j_].activationGradient / (m + 1);
@@ -249,4 +250,16 @@ nn::Backpropagator::setUpGradient(int l, int j, std::vector<std::vector<NeuronGr
 {
     gradient[l][j].n = net->getLayer(l)->getNeuron(j);
     return gradient[l][j].n;
+}
+
+void nn::Backpropagator::resetGradient(std::vector<std::vector<NeuronGradient>>& gradient) const
+{
+    for (auto&& layerGradient : gradient)
+        for (auto&& neuronGradient : layerGradient)
+        {
+            neuronGradient.biasGradient = 0.0;
+            neuronGradient.activationGradient = 0.0;
+            for (auto&& weightGradient : neuronGradient.weightsGradient)
+                weightGradient.second = 0.0;
+        }
 }

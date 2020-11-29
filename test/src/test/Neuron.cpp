@@ -73,11 +73,11 @@ TEST_F(Neuron, SetWeights_WillWeightsBeSetRight)
     n0.connect(&n1);
     n0.connect(&n2);
 
-    std::map<nn::abs::Neuron*, double> weights = {{&n1, 0.5}, {&n2, 0.3}};
+    std::map<std::shared_ptr<nn::abs::Neuron>, double> weights = {{&n1, 0.5}, {&n2, 0.3}};
     n0.setWeights(weights);
 
-    ASSERT_EQ(n0.getConnectionNextLayer(&n1)->w, weights[&n1]);
-    ASSERT_EQ(n0.getConnectionNextLayer(&n2)->w, weights[&n2]);
+    ASSERT_EQ(n0.getConnectionNextLayer(&n1)->w, weights[n1]);
+    ASSERT_EQ(n0.getConnectionNextLayer(&n2)->w, weights[n2]);
 
     ASSERT_EQ(n1.getConnectionPreviousLayer(dynamic_cast<nn::abs::Neuron*>(&n0))->w, weights[&n1]);
     ASSERT_EQ(n2.getConnectionPreviousLayer(dynamic_cast<nn::abs::Neuron*>(&n0))->w, weights[&n2]);
