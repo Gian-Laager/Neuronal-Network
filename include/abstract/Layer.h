@@ -11,9 +11,9 @@ namespace nn::abs
     public:
         virtual int getSize() const = 0;
 
-        virtual void connect(Layer* l) = 0;
+        virtual void connect(const std::shared_ptr<Layer>& l) = 0;
 
-        virtual const std::vector<double>& calculate() const = 0;
+        virtual std::vector<double> calculate() const = 0;
 
         virtual const std::vector<std::shared_ptr<nn::abs::Neuron>>& getNeurons() = 0;
 
@@ -27,7 +27,7 @@ namespace nn::abs
 
         virtual void setBias(const std::vector<double>& bs) = 0;
 
-        virtual void setWeights(const std::vector<std::map<std::shared_ptr<nn::abs::Neuron>, double>>& weights) = 0;
+        virtual void setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights) = 0;
 
         virtual void resetCaches() const = 0;
     };

@@ -9,13 +9,13 @@ void nn::test::Backpropagator::SetUp()
     simpleNetwork.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(1));
     simpleNetwork.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(1));
 
-    simpleNetwork.setWeights(0, std::vector<std::map<std::shared_ptr<nn::abs::Neuron>, double>>{std::map<nn::abs::Neuron*, double>{
-            std::pair<std::shared_ptr<nn::abs::Neuron>, double>{simpleNetwork.getLayer(1)->getNeuron(0).get(), 2.0}}});
+    simpleNetwork.setWeights(0, std::vector<std::map<nn::abs::Neuron*, double>>{std::map<nn::abs::Neuron*, double>{
+            std::pair<nn::abs::Neuron*, double>{simpleNetwork.getLayer(1)->getNeuron(0).get(), 2.0}}});
 
     simpleNetwork.setBias(0, {5.0});
 
-    simpleNetwork.setWeights(1, std::vector<std::map<std::shared_ptr<nn::abs::Neuron>, double>>{std::map<std::shared_ptr<nn::abs::Neuron>, double>{
-            std::pair<std::shared_ptr<nn::abs::Neuron>, double>{simpleNetwork.getLayer(2)->getNeuron(0).get(), 2.5}}});
+    simpleNetwork.setWeights(1, std::vector<std::map<nn::abs::Neuron*, double>>{std::map<nn::abs::Neuron*, double>{
+            std::pair<nn::abs::Neuron*, double>{simpleNetwork.getLayer(2)->getNeuron(0).get(), 2.5}}});
 
     simpleNetwork.setBias(1, {5.0});
     simpleNetwork.setBias(2, {5.0});

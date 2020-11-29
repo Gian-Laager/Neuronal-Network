@@ -15,7 +15,7 @@ namespace nn
 
         std::vector<std::shared_ptr<nn::abs::Layer>> layers;
 
-        std::shared_ptr<nn::abs::Backpropagator> backpropagator;
+        mutable std::shared_ptr<nn::abs::Backpropagator> backpropagator;
 
         bool isInputLayer(const std::shared_ptr<nn::abs::Layer>& l) const;
 
@@ -41,15 +41,15 @@ namespace nn
 
         void setInputs(const std::vector<double>& values) override;
 
-        const std::vector<double>& calculate() override;
+        std::vector<double> calculate() override;
 
-        const std::vector<double>& calculate(std::vector<double> values) override;
+        std::vector<double> calculate(std::vector<double> values) override;
 
         void setActivation(int index, const std::shared_ptr<nn::abs::Activation>& f) override;
 
         void setBias(int index, std::vector<double> bs) override;
 
-        void setWeights(int index, const std::vector<std::map<std::shared_ptr<nn::abs::Neuron>, double>>& weights) override;
+        void setWeights(int index, const std::vector<std::map<abs::Neuron*, double>>& weights) override;
 
         std::shared_ptr<const nn::abs::Layer> getLayer(int index) const override;
 

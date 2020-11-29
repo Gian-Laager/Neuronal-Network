@@ -3,28 +3,28 @@
 #include <utility>
 
 nn::Neuron::Neuron(
-        std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer,
-        std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer)
+        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer,
+        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsPreviousLayer)
         : connectionsNextLayer(std::move(connectionsNextLayer)),
           connectionsPreviousLayer(std::move(connectionsPreviousLayer)) {}
 
-const std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>>&
+const std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>&
 nn::Neuron::getConnectionsNextLayer()
 {
     return connectionsNextLayer;
 }
 
-const std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>>&
+const std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>&
 nn::Neuron::getConnectionsPreviousLayer()
 {
     return connectionsPreviousLayer;
 }
 
-void nn::Neuron::connect(const std::shared_ptr<nn::abs::Neuron>& n)
+void nn::Neuron::connect(nn::abs::Neuron* n)
 {
-    auto c = std::make_shared<Connection>(Connection{std::shared_ptr<nn::abs::Neuron>{this}, n});
+    auto c = std::make_shared<Connection>(Connection{this, n});
     connectionsNextLayer[n] = c;
-    n->appendToPreviousConnection(std::shared_ptr<nn::abs::Neuron>{this}, c);
+    n->appendToPreviousConnection(this, c);
 }
 
 double nn::Neuron::getValue() const
@@ -52,7 +52,7 @@ double nn::Neuron::getB() const
 
 void nn::Neuron::setActivation(const std::shared_ptr<nn::abs::Activation>& f)
 {
-    activationFunction = std::move(f);
+    activationFunction = f;
 }
 
 void nn::Neuron::setB(double bias)
@@ -60,7 +60,7 @@ void nn::Neuron::setB(double bias)
     this->b = bias;
 }
 
-void nn::Neuron::setWeights(const std::map<std::shared_ptr<nn::abs::Neuron>, double>& weights)
+void nn::Neuron::setWeights(const std::map<nn::abs::Neuron*, double>& weights)
 {
     isInValidKeyInWeights(weights);
 
@@ -68,7 +68,7 @@ void nn::Neuron::setWeights(const std::map<std::shared_ptr<nn::abs::Neuron>, dou
         connectionsNextLayer[w.first]->w = w.second;
 }
 
-void nn::Neuron::isInValidKeyInWeights(const std::map<std::shared_ptr<nn::abs::Neuron>, double>& weights) const
+void nn::Neuron::isInValidKeyInWeights(const std::map<nn::abs::Neuron*, double>& weights) const
 {
     for (auto& w : weights)
         if (this->connectionsNextLayer.find(w.first) == this->connectionsNextLayer.end())
@@ -76,7 +76,7 @@ void nn::Neuron::isInValidKeyInWeights(const std::map<std::shared_ptr<nn::abs::N
                     "All keys of the weights map have to be in connectionsNextLayer");
 }
 
-void nn::Neuron::appendToPreviousConnection(const std::shared_ptr<nn::abs::Neuron>& n,
+void nn::Neuron::appendToPreviousConnection(nn::abs::Neuron* n,
                                             const std::shared_ptr<nn::abs::Connection>& c)
 {
     connectionsPreviousLayer[n] = c;
@@ -105,13 +105,13 @@ double nn::Neuron::getZ() const
 }
 
 const std::shared_ptr<nn::abs::Connection>&
-nn::Neuron::getConnectionNextLayer(const std::shared_ptr<nn::abs::Neuron>& index)
+nn::Neuron::getConnectionNextLayer(nn::abs::Neuron* index)
 {
     return connectionsNextLayer[index];
 }
 
 const std::shared_ptr<nn::abs::Connection>&
-nn::Neuron::getConnectionPreviousLayer(const std::shared_ptr<nn::abs::Neuron>& index)
+nn::Neuron::getConnectionPreviousLayer(nn::abs::Neuron* index)
 {
     return connectionsPreviousLayer[index];
 }
@@ -121,14 +121,12 @@ const std::shared_ptr<nn::abs::Activation>& nn::Neuron::getActivation()
     return activationFunction;
 }
 
-nn::Connection::Connection(std::shared_ptr<nn::abs::Neuron> from, std::shared_ptr<nn::abs::Neuron> to) : from(
-        std::move(from)),
-                                                                                                         to(std::move(
-                                                                                                                 to)) {}
+nn::Connection::Connection(nn::abs::Neuron* from, nn::abs::Neuron* to) : from(from),
+                                                                         to(to) {}
 
 
 nn::InputNeuron::InputNeuron(
-        std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer)
+        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer)
         : connectionsNextLayer(std::move(
         connectionsNextLayer), {}) {}
 
@@ -149,7 +147,7 @@ void nn::InputNeuron::setValue(double v)
 }
 
 nn::InputNeuron::InputNeuron(double v,
-                             std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer)
+                             std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> connectionsNextLayer)
         : connectionsNextLayer(std::move(connectionsNextLayer)),
           value(v)
 {
@@ -163,23 +161,23 @@ nn::InputNeuron::InputNeuron(double v)
 
 }
 
-const std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>>&
+const std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>&
 nn::InputNeuron::getConnectionsNextLayer()
 {
     return connectionsNextLayer;
 }
 
-void nn::InputNeuron::connect(const std::shared_ptr<Neuron>& n)
+void nn::InputNeuron::connect(nn::abs::Neuron* n)
 {
-    auto c = std::make_shared<Connection>(std::shared_ptr<nn::abs::Neuron>{this}, n);
+    auto c = std::make_shared<Connection>(this, n);
     connectionsNextLayer[n] = c;
-    n->appendToPreviousConnection(std::shared_ptr<nn::abs::Neuron>{this}, c);
+    n->appendToPreviousConnection(this, c);
 }
 
-const std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>>&
+const std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>&
 nn::InputNeuron::getConnectionsPreviousLayer()
 {
-    return std::move(std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>>{});
+    return std::move(std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>{});
 }
 
 double nn::InputNeuron::getB() const
@@ -194,10 +192,10 @@ void nn::InputNeuron::setB(double bias)
 
 void nn::InputNeuron::setActivation(const std::shared_ptr<nn::abs::Activation>& f)
 {
-    activationFunction = std::move(f);
+    activationFunction = f;
 }
 
-void nn::InputNeuron::setWeights(const std::map<std::shared_ptr<nn::abs::Neuron>, double>& weights)
+void nn::InputNeuron::setWeights(const std::map<nn::abs::Neuron*, double>& weights)
 {
     isInValidKeyInWeights(weights);
 
@@ -205,7 +203,7 @@ void nn::InputNeuron::setWeights(const std::map<std::shared_ptr<nn::abs::Neuron>
         connectionsNextLayer[w.first]->w = w.second;
 }
 
-void nn::InputNeuron::isInValidKeyInWeights(const std::map<std::shared_ptr<nn::abs::Neuron>, double>& weights) const
+void nn::InputNeuron::isInValidKeyInWeights(const std::map<nn::abs::Neuron*, double>& weights) const
 {
     for (auto& w : weights)
         if (connectionsNextLayer.find(w.first) == connectionsNextLayer.end())
@@ -213,7 +211,7 @@ void nn::InputNeuron::isInValidKeyInWeights(const std::map<std::shared_ptr<nn::a
                     "All keys of the weights map have to be in connectionsNextLayer");
 }
 
-void nn::InputNeuron::appendToPreviousConnection(const std::shared_ptr<nn::abs::Neuron>& n,
+void nn::InputNeuron::appendToPreviousConnection(nn::abs::Neuron* n,
                                                  const std::shared_ptr<nn::abs::Connection>& c)
 {
 
@@ -241,17 +239,17 @@ double nn::InputNeuron::getZ() const
 }
 
 const std::shared_ptr<nn::abs::Connection>&
-nn::InputNeuron::getConnectionNextLayer(const std::shared_ptr<Neuron>& index)
+nn::InputNeuron::getConnectionNextLayer(nn::abs::Neuron* index)
 {
     return connectionsNextLayer[index];
 }
 
 const std::shared_ptr<nn::abs::Connection>& nn::InputNeuron::getConnectionPreviousLayer(
-        const std::shared_ptr<Neuron>& index)
+        nn::abs::Neuron* index)
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreturn-stack-address"
-    return std::make_shared<nn::Connection>(std::shared_ptr<nn::abs::Neuron>{nullptr}, std::shared_ptr<nn::abs::Neuron>{this});
+    return std::make_shared<nn::Connection>(nullptr, this);
 #pragma clang diagnostic pop
 }
 

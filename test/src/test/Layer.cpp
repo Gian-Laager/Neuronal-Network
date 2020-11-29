@@ -10,8 +10,8 @@ TEST_F(Layer, Constructor_WillNumberOfNeuronsSetRightNeuronsSize)
 
 TEST_F(Layer, Connect_WillEveryNeuronBeConnectedToTheNeuronsInTheNextLayer)
 {
-    nn::Layer<nn::Neuron> l2 = {8};
-    layer.connect(&l2);
+    std::shared_ptr<nn::Layer<nn::Neuron>> l2 = std::make_shared<nn::Layer<nn::Neuron>>(8);
+    layer.connect(l2);
 
     for (auto& nInLayer : layer.getNeurons())
     {
@@ -19,14 +19,14 @@ TEST_F(Layer, Connect_WillEveryNeuronBeConnectedToTheNeuronsInTheNextLayer)
         for (auto& connection : nInLayer->getConnectionsNextLayer())
         {
             bool connected = true;
-            for (auto& nInL2 : l2.getNeurons())
+            for (auto& nInL2 : l2->getNeurons())
                 connected |= (long) ((nn::Connection*) connection.second.get())->to == (long) &nInLayer;
             connectedToAll &= connected;
         }
         ASSERT_TRUE(connectedToAll);
     }
 
-    for (auto& nInL2 : l2.getNeurons())
+    for (auto& nInL2 : l2->getNeurons())
     {
         bool connectedToAll = true;
         for (auto& connection : nInL2->getConnectionsPreviousLayer())
@@ -49,9 +49,9 @@ TEST_F(Layer, WillSetActivationSetActivationsOfEveryNeuron)
         ASSERT_EQ((*getActivation(n))(5.0), (*f)(5.0));
 }
 
-std::shared_ptr<nn::abs::Activation> Layer::getActivation(std::shared_ptr<nn::abs::Neuron> n)
+std::shared_ptr<nn::abs::Activation> Layer::getActivation(const std::shared_ptr<nn::abs::Neuron>& n)
 {
-    return *(std::shared_ptr<nn::abs::Activation>*) ((long) n + 64);
+    return *(std::shared_ptr<nn::abs::Activation>*) ((long) n.get() + 64);
 }
 
 TEST_F(Layer, SetValues_WillThrowWhenVectorIsInvalidSize)

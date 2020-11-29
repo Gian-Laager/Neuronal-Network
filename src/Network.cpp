@@ -21,7 +21,7 @@ void nn::Network::pushLayer(const std::shared_ptr<nn::abs::Layer>& l)
                      "that means the values before that layer can't be passed through this layer";
 
     if (size > 0)
-        layers[size - 1]->connect(l.get());
+        layers[size - 1]->connect(l);
     layers.push_back(l);
     size++;
 }
@@ -80,16 +80,16 @@ void nn::Network::setBias(int index, std::vector<double> bs)
     layers[index]->setBias(bs);
 }
 
-void nn::Network::setWeights(int index, const std::vector<std::map<std::shared_ptr<nn::abs::Neuron>, double>>& weights)
+void nn::Network::setWeights(int index, const std::vector<std::map<nn::abs::Neuron*, double>>& weights)
 {
     layers[index]->setWeights(weights);
 }
 
-const std::vector<double>& nn::Network::calculate()
+std::vector<double> nn::Network::calculate()
 {
     areLayersGiven();
     resetCaches();
-    return layers[size - 1]->calculate();
+    return std::move(layers[size - 1]->calculate());
 }
 
 void nn::Network::areLayersGiven() const
@@ -151,8 +151,8 @@ void nn::Network::fit(const std::vector<std::vector<double>>& x, const std::vect
     backpropagator->fit(x, y, learingRate, epochs);
 }
 
-const std::vector<double>& nn::Network::calculate(std::vector<double> values)
+std::vector<double> nn::Network::calculate(std::vector<double> values)
 {
     setInputs(values);
-    return calculate();
+    return std::move(calculate());
 }

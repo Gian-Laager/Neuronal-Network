@@ -14,16 +14,15 @@ namespace nn::abs
     class Neuron
     {
     public:
-        virtual const std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>>& getConnectionsNextLayer() = 0;
+        virtual const std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>& getConnectionsNextLayer() = 0;
 
-        virtual const std::map<std::shared_ptr<nn::abs::Neuron>, std::shared_ptr<nn::abs::Connection>>& getConnectionsPreviousLayer() = 0;
+        virtual const std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>& getConnectionsPreviousLayer() = 0;
 
-        virtual const std::shared_ptr<nn::abs::Connection>& getConnectionNextLayer(const std::shared_ptr<Neuron>& index) = 0;
+        virtual const std::shared_ptr<nn::abs::Connection>& getConnectionNextLayer(Neuron* index) = 0;
 
-        virtual const std::shared_ptr<nn::abs::Connection>& getConnectionPreviousLayer(
-                const std::shared_ptr<Neuron>& index) = 0;
+        virtual const std::shared_ptr<nn::abs::Connection>& getConnectionPreviousLayer(Neuron* index) = 0;
 
-        virtual void connect(const std::shared_ptr<Neuron>& n) = 0;
+        virtual void connect(Neuron* n) = 0;
 
         virtual double getValue() const = 0;
 
@@ -39,9 +38,9 @@ namespace nn::abs
 
         virtual double getZ() const = 0;
 
-        virtual void setWeights(const std::map<std::shared_ptr<Neuron>, double>& weights) = 0;
+        virtual void setWeights(const std::map<Neuron*, double>& weights) = 0;
 
-        virtual void appendToPreviousConnection(const std::shared_ptr<Neuron>& n, const std::shared_ptr<Connection>& c) = 0;
+        virtual void appendToPreviousConnection(Neuron* n, const std::shared_ptr<Connection>& c) = 0;
 
         virtual void resetCache() const = 0;
     };

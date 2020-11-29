@@ -18,9 +18,9 @@ namespace nn::abs
 
         virtual void setInputs(const std::vector<double>& values) = 0;
 
-        virtual const std::vector<double>& calculate(std::vector<double> values) = 0;
+        virtual std::vector<double> calculate(std::vector<double> values) = 0;
 
-        virtual const std::vector<double>& calculate() = 0;
+        virtual std::vector<double> calculate() = 0;
 
         virtual std::shared_ptr<const nn::abs::Layer> getLayer(int index) const = 0;
 
@@ -32,7 +32,7 @@ namespace nn::abs
 
         virtual void setBias(int index, std::vector<double> bs) = 0;
 
-        virtual void setWeights(int index, const std::vector<std::map<std::shared_ptr<nn::abs::Neuron>, double>>& weights) = 0;
+        virtual void setWeights(int index, const std::vector<std::map<Neuron*, double>>& weights) = 0;
 
         virtual void resetCaches() const = 0;
 

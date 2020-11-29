@@ -40,18 +40,19 @@ namespace nn
 
         int getSize() const override;
 
-        void connect(nn::abs::Layer* l) override;
+        void connect(const std::shared_ptr<nn::abs::Layer>& l) override;
 
         const std::vector<std::shared_ptr<nn::abs::Neuron>>& getNeurons() override;
+
         const std::shared_ptr<nn::abs::Neuron>& getNeuron(int index) override;
 
         void setActivation(const std::shared_ptr<nn::abs::Activation>& f) override;
 
         void setBias(const std::vector<double>& bs) override;
 
-        void setWeights(const std::vector<std::map<std::shared_ptr<nn::abs::Neuron>, double>>& weights) override;
+        void setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights) override;
 
-        const std::vector<double>& calculate() const override;
+        std::vector<double> calculate() const override;
 
         std::vector<std::shared_ptr<const nn::abs::Neuron>> getNeurons() const override;
 
@@ -76,7 +77,8 @@ namespace nn
 
         InputLayer(int numberOfNeurons, const std::shared_ptr<nn::abs::Activation>& f);
 
-        InputLayer(std::vector<std::shared_ptr<nn::abs::InputNeuron>> neurons,  const std::shared_ptr<nn::abs::Activation>& f);
+        InputLayer(std::vector<std::shared_ptr<nn::abs::InputNeuron>> neurons,
+                   const std::shared_ptr<nn::abs::Activation>& f);
 
         InputLayer(std::vector<std::shared_ptr<nn::abs::InputNeuron>> neurons);
 
@@ -88,16 +90,17 @@ namespace nn
 
         void setValues(const std::vector<double>& v) override;
 
-        const std::vector<double>& calculate() const override;
+        std::vector<double> calculate() const override;
 
         const std::vector<std::shared_ptr<nn::abs::InputNeuron>>& getInputNeurons() override;
 
         std::vector<std::shared_ptr<const nn::abs::Neuron>> getNeurons() const override;
+
         const std::shared_ptr<const nn::abs::Neuron>& getNeuron(int index) const override;
 
         int getSize() const override;
 
-        void connect(Layer* l) override;
+        void connect(const std::shared_ptr<nn::abs::Layer>& l) override;
 
         const std::vector<std::shared_ptr<nn::abs::Neuron>>& getNeurons() override;
 
@@ -107,7 +110,7 @@ namespace nn
 
         void setBias(const std::vector<double>& bs) override;
 
-        void setWeights(const std::vector<std::map<std::shared_ptr<nn::abs::Neuron>, double>>& weights) override;
+        void setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights) override;
 
         EXCEPTION(IncompatibleVectorException);
     };
@@ -130,11 +133,11 @@ int nn::Layer<NeuronType>::getSize() const
 
 template<typename NeuronType>
 requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
-void nn::Layer<NeuronType>::connect(nn::abs::Layer* l)
+void nn::Layer<NeuronType>::connect(const std::shared_ptr<nn::abs::Layer>& l)
 {
     for (auto& neuronThisLayer : neurons)
         for (auto& neuronOtherLayer : l->getNeurons())
-            neuronThisLayer->connect(neuronOtherLayer);
+            neuronThisLayer->connect(neuronOtherLayer.get());
 }
 
 template<typename NeuronType>
@@ -169,7 +172,7 @@ void nn::Layer<NeuronType>::setBias(const std::vector<double>& bs)
 
 template<typename NeuronType>
 requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
-void nn::Layer<NeuronType>::setWeights(const std::vector<std::map<std::shared_ptr<nn::abs::Neuron>, double>>& weights)
+void nn::Layer<NeuronType>::setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights)
 {
     IS_VECTOR_COMPATIBLE(weights);
 
@@ -182,23 +185,25 @@ void nn::Layer<NeuronType>::setWeights(const std::vector<std::map<std::shared_pt
 
 template<typename NeuronType>
 requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
-nn::Layer<NeuronType>::Layer(int numberOfNeurons,  const std::shared_ptr<nn::abs::Activation>& f) : neurons(numberOfNeurons)
+nn::Layer<NeuronType>::Layer(int numberOfNeurons, const std::shared_ptr<nn::abs::Activation>& f) : neurons(
+        numberOfNeurons)
 {
-        for (auto& neuron : neurons)
-            neuron = std::shared_ptr<nn::abs::Neuron>(new NeuronType{});
-        nn::Layer<NeuronType>::setActivation(f);
+    for (auto& neuron : neurons)
+        neuron = std::shared_ptr<nn::abs::Neuron>(new NeuronType{});
+    nn::Layer<NeuronType>::setActivation(f);
 }
 
 template<typename NeuronType>
 requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
-nn::Layer<NeuronType>::Layer(std::vector<std::shared_ptr<nn::abs::Neuron>> neurons, const std::shared_ptr<nn::abs::Activation>& f) : neurons(std::move(neurons))
+nn::Layer<NeuronType>::Layer(std::vector<std::shared_ptr<nn::abs::Neuron>> neurons,
+                             const std::shared_ptr<nn::abs::Activation>& f) : neurons(std::move(neurons))
 {
     nn::Layer<NeuronType>::setActivation(f);
 }
 
 template<typename NeuronType>
 requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
-const std::vector<double>& nn::Layer<NeuronType>::calculate() const
+std::vector<double> nn::Layer<NeuronType>::calculate() const
 {
     std::vector<double> retValue;
     retValue.reserve(neurons.size());
@@ -206,7 +211,7 @@ const std::vector<double>& nn::Layer<NeuronType>::calculate() const
         retValue.push_back(n->getValue());
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreturn-stack-address"
-    return retValue;
+    return std::move(retValue);
 #pragma clang diagnostic pop
 }
 
@@ -275,11 +280,11 @@ int nn::InputLayer<NeuronType>::getSize() const
 
 template<typename NeuronType>
 requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
-void nn::InputLayer<NeuronType>::connect(nn::abs::Layer* l)
+void nn::InputLayer<NeuronType>::connect(const std::shared_ptr<nn::abs::Layer>& l)
 {
     for (auto& neuronThisLayer : neurons)
         for (auto& neuronOtherLayer : l->getNeurons())
-            neuronThisLayer->connect(neuronOtherLayer);
+            neuronThisLayer->connect(neuronOtherLayer.get());
 }
 
 template<typename NeuronType>
@@ -323,7 +328,8 @@ void nn::InputLayer<NeuronType>::setBias(const std::vector<double>& bs)
 
 template<typename NeuronType>
 requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
-void nn::InputLayer<NeuronType>::setWeights(const std::vector<std::map<std::shared_ptr<nn::abs::Neuron>, double>>& weights)
+void
+nn::InputLayer<NeuronType>::setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights)
 {
     IS_VECTOR_COMPATIBLE(weights);
 
@@ -338,7 +344,8 @@ void nn::InputLayer<NeuronType>::setWeights(const std::vector<std::map<std::shar
 
 template<typename NeuronType>
 requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
-nn::InputLayer<NeuronType>::InputLayer(int numberOfNeurons, const std::shared_ptr<nn::abs::Activation>& f) : neurons(numberOfNeurons)
+nn::InputLayer<NeuronType>::InputLayer(int numberOfNeurons, const std::shared_ptr<nn::abs::Activation>& f) : neurons(
+        numberOfNeurons)
 {
     for (auto& neuron : neurons)
         neuron = std::shared_ptr<nn::abs::InputNeuron>(new NeuronType{});
@@ -355,14 +362,15 @@ nn::InputLayer<NeuronType>::InputLayer(std::vector<std::shared_ptr<nn::abs::Inpu
 
 template<typename NeuronType>
 requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
-nn::InputLayer<NeuronType>::InputLayer(std::vector<std::shared_ptr<nn::abs::InputNeuron>> neurons) : neurons(std::move(neurons))
+nn::InputLayer<NeuronType>::InputLayer(std::vector<std::shared_ptr<nn::abs::InputNeuron>> neurons) : neurons(
+        std::move(neurons))
 {
 
 }
 
 template<typename NeuronType>
 requires std::is_base_of<nn::abs::InputNeuron, NeuronType>::value
-const std::vector<double>& nn::InputLayer<NeuronType>::calculate() const
+std::vector<double> nn::InputLayer<NeuronType>::calculate() const
 {
     std::vector<double> retValue;
     retValue.reserve(neurons.size());
@@ -370,7 +378,7 @@ const std::vector<double>& nn::InputLayer<NeuronType>::calculate() const
         retValue.push_back(n->getValue());
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreturn-stack-address"
-    return retValue;
+    return std::move(retValue);
 #pragma clang diagnostic pop
 }
 
