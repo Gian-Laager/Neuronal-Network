@@ -209,10 +209,7 @@ std::vector<double> nn::Layer<NeuronType>::calculate() const
     retValue.reserve(neurons.size());
     for (auto& n : neurons)
         retValue.push_back(n->getValue());
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wreturn-stack-address"
     return std::move(retValue);
-#pragma clang diagnostic pop
 }
 
 template<typename NeuronType>
@@ -376,10 +373,7 @@ std::vector<double> nn::InputLayer<NeuronType>::calculate() const
     retValue.reserve(neurons.size());
     for (auto& n : neurons)
         retValue.push_back(n->getValue());
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wreturn-stack-address"
     return std::move(retValue);
-#pragma clang diagnostic pop
 }
 
 template<typename NeuronType>
