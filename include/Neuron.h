@@ -43,15 +43,15 @@ namespace nn
 
         double getZ() const override;
 
-        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsNextLayer() override;
+        const std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>& getConnectionsNextLayer() override;
 
         void connect(nn::abs::Neuron* n) override;
 
-        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsPreviousLayer() override;
+        const std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>& getConnectionsPreviousLayer() override;
 
-        std::shared_ptr<nn::abs::Connection> getConnectionNextLayer(nn::abs::Neuron* index) override;
+        const std::shared_ptr<nn::abs::Connection>& getConnectionNextLayer(nn::abs::Neuron* index) override;
 
-        std::shared_ptr<nn::abs::Connection> getConnectionPreviousLayer(nn::abs::Neuron* index) override;
+        const std::shared_ptr<nn::abs::Connection>& getConnectionPreviousLayer(nn::abs::Neuron* index) override;
 
         double getValue() const override;
 
@@ -59,15 +59,17 @@ namespace nn
 
         void setB(double bias) override;
 
-        void setActivation(std::shared_ptr<nn::abs::Activation> f) override;
+        void setActivation(const std::shared_ptr<nn::abs::Activation>& f) override;
 
         std::shared_ptr<const nn::abs::Activation> getActivation() const override;
 
-        void setWeights(std::map<nn::abs::Neuron*, double> weights) override;
+        const std::shared_ptr<nn::abs::Activation>& getActivation() override;
+
+        void setWeights(const std::map<nn::abs::Neuron*, double>& weights) override;
 
         EXCEPTION(InvalidKeyInMapException);
 
-        void appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<nn::abs::Connection> c) override;
+        void appendToPreviousConnection(nn::abs::Neuron* n, const std::shared_ptr<nn::abs::Connection>& c) override;
 
     private:
         double multiplyPreviousLayersResultsByWeights() const;
@@ -100,25 +102,27 @@ namespace nn
 
         void resetCache() const override;
 
-        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsNextLayer() override;
+        const std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>& getConnectionsNextLayer() override;
 
         void connect(nn::abs::Neuron* n) override;
 
-        std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>> getConnectionsPreviousLayer() override;
+        const std::map<nn::abs::Neuron*, std::shared_ptr<nn::abs::Connection>>& getConnectionsPreviousLayer() override;
 
-        std::shared_ptr<nn::abs::Connection> getConnectionNextLayer(nn::abs::Neuron* index) override;
+        const std::shared_ptr<nn::abs::Connection>& getConnectionNextLayer(Neuron* index) override;
 
-        std::shared_ptr<nn::abs::Connection> getConnectionPreviousLayer(nn::abs::Neuron* index) override;
+        const std::shared_ptr<nn::abs::Connection>& getConnectionPreviousLayer(Neuron* index) override;
 
         double getB() const override;
 
         void setB(double bias) override;
 
-        void setActivation(std::shared_ptr<nn::abs::Activation> f) override;
+        void setActivation(const std::shared_ptr<nn::abs::Activation>& f) override;
 
         std::shared_ptr<const nn::abs::Activation> getActivation() const override;
 
-        void setWeights(std::map<nn::abs::Neuron*, double> weights) override;
+        const std::shared_ptr<nn::abs::Activation>& getActivation() override;
+
+        void setWeights(const std::map<nn::abs::Neuron*, double>& weights) override;
 
         double getValue() const override;
 
@@ -126,7 +130,7 @@ namespace nn
 
         void setValue(double v) override;
 
-        void appendToPreviousConnection(nn::abs::Neuron* n, std::shared_ptr<nn::abs::Connection> c) override;
+        void appendToPreviousConnection(nn::abs::Neuron* n, const std::shared_ptr<nn::abs::Connection>& c) override;
     };
 }
 

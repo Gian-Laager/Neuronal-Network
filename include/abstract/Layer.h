@@ -11,19 +11,19 @@ namespace nn::abs
     public:
         virtual int getSize() const = 0;
 
-        virtual void connect(Layer* l) = 0;
+        virtual void connect(const std::shared_ptr<Layer>& l) = 0;
 
         virtual std::vector<double> calculate() const = 0;
 
-        virtual std::vector<std::shared_ptr<nn::abs::Neuron>> getNeurons() = 0;
+        virtual const std::vector<std::shared_ptr<nn::abs::Neuron>>& getNeurons() = 0;
 
         virtual std::vector<std::shared_ptr<const nn::abs::Neuron>> getNeurons() const = 0;
 
-        virtual std::shared_ptr<nn::abs::Neuron> getNeuron(int index) = 0;
+        virtual const std::shared_ptr<nn::abs::Neuron>& getNeuron(int index) = 0;
 
-        virtual std::shared_ptr<const nn::abs::Neuron> getNeuron(int index) const = 0;
+        virtual const std::shared_ptr<const nn::abs::Neuron>& getNeuron(int index) const = 0;
 
-        virtual void setActivation(std::shared_ptr<nn::abs::Activation> f) = 0;
+        virtual void setActivation(const std::shared_ptr<Activation>& f) = 0;
 
         virtual void setBias(const std::vector<double>& bs) = 0;
 
@@ -37,7 +37,7 @@ namespace nn::abs
     public:
         virtual void setValues(const std::vector<double>& v) = 0;
 
-        virtual std::vector<std::shared_ptr<InputNeuron>> getInputNeurons() = 0;
+        virtual const std::vector<std::shared_ptr<InputNeuron>>& getInputNeurons() = 0;
     };
 }
 

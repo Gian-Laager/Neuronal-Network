@@ -16,7 +16,7 @@ namespace nn::activations
 
         double derivative(double z) const override
         {
-            return this->operator()(z) * (1 - this->operator()(z));
+            return 1 / (4 * pow(cosh(z / 2), 2));
         }
     };
 
@@ -30,7 +30,7 @@ namespace nn::activations
 
         double derivative(double z) const override
         {
-            return 1 - pow((exp(z) - exp(-z)) / (exp(z) + exp(-z)), 2);
+            return 1 / pow(cosh(z), 2);
         }
     };
 

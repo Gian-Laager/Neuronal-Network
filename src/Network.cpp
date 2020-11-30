@@ -11,7 +11,7 @@ int nn::Network::getNumberOfLayers() const
     return size;
 }
 
-void nn::Network::pushLayer(std::shared_ptr<nn::abs::Layer> l)
+void nn::Network::pushLayer(const std::shared_ptr<nn::abs::Layer>& l)
 {
     if (size == 0 && !isInputLayer(l))
         throw InvalidFirstLayerException("The first layer that is being pushed must derive from nn::abs::InputLayer");
@@ -21,7 +21,7 @@ void nn::Network::pushLayer(std::shared_ptr<nn::abs::Layer> l)
                      "that means the values before that layer can't be passed through this layer";
 
     if (size > 0)
-        layers[size - 1]->connect(l.get());
+        layers[size - 1]->connect(l);
     layers.push_back(l);
     size++;
 }
@@ -43,14 +43,14 @@ nn::Network::Network(int initialNumberOfLayers, const std::shared_ptr<nn::abs::I
     nn::Network::pushLayer(firstLayer);
 }
 
-nn::Network::Network(std::shared_ptr<nn::abs::InputLayer> firstLayer) : backpropagator(
+nn::Network::Network(const std::shared_ptr<nn::abs::InputLayer>& firstLayer) : backpropagator(
         std::make_shared<nn::Backpropagator>())
 {
     nn::Network::pushLayer(firstLayer);
 }
 
 nn::Network::Network(const std::shared_ptr<nn::abs::InputLayer>& firstLayer,
-                     std::vector<std::shared_ptr<nn::abs::Layer>> layers) : backpropagator(
+                     const std::vector<std::shared_ptr<nn::abs::Layer>>& layers) : backpropagator(
         std::make_shared<nn::Backpropagator>())
 {
     nn::Network::pushLayer(firstLayer);
@@ -59,7 +59,7 @@ nn::Network::Network(const std::shared_ptr<nn::abs::InputLayer>& firstLayer,
     size += layers.size();
 }
 
-void nn::Network::setInputs(std::vector<double> values)
+void nn::Network::setInputs(const std::vector<double>& values)
 {
     areLayersGiven();
     dynamic_cast<nn::abs::InputLayer*>(layers[0].get())->setValues(values);
@@ -70,7 +70,7 @@ std::shared_ptr<const nn::abs::Layer> nn::Network::getLayer(int index) const
     return layers[index];
 }
 
-void nn::Network::setActivation(int index, std::shared_ptr<nn::abs::Activation> f)
+void nn::Network::setActivation(int index, const std::shared_ptr<nn::abs::Activation>& f)
 {
     layers[index]->setActivation(f);
 }
@@ -89,7 +89,7 @@ std::vector<double> nn::Network::calculate()
 {
     areLayersGiven();
     resetCaches();
-    return layers[size - 1]->calculate();
+    return std::move(layers[size - 1]->calculate());
 }
 
 void nn::Network::areLayersGiven() const
@@ -115,12 +115,12 @@ nn::Network::Network() : backpropagator(
 
 }
 
-void nn::Network::setBackpropagator(std::shared_ptr<nn::abs::Backpropagator> backprop)
+void nn::Network::setBackpropagator(const std::shared_ptr<nn::abs::Backpropagator>& b)
 {
-    backpropagator = std::move(backprop);
+    backpropagator = std::move(b);
 }
 
-void nn::Network::initializeFitting(std::shared_ptr<nn::abs::LossFunction> lossF)
+void nn::Network::initializeFitting(const std::shared_ptr<nn::abs::LossFunction>& lossF)
 {
     backpropagator->initialize(this, lossF);
 }
@@ -135,7 +135,7 @@ int nn::Network::getInputLayerSize() const
     return getLayer(0)->getSize();
 }
 
-std::shared_ptr<nn::abs::Layer> nn::Network::getLayer(int index)
+const std::shared_ptr<nn::abs::Layer>& nn::Network::getLayer(int index)
 {
     return layers[index];
 }
@@ -154,5 +154,5 @@ void nn::Network::fit(const std::vector<std::vector<double>>& x, const std::vect
 std::vector<double> nn::Network::calculate(std::vector<double> values)
 {
     setInputs(values);
-    return calculate();
+    return std::move(calculate());
 }

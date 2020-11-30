@@ -10,7 +10,7 @@ namespace nn::abs
     class Backpropagator
     {
     public:
-        virtual void initialize(nn::abs::Network* n, std::shared_ptr<nn::abs::LossFunction> lossF) = 0;
+        virtual void initialize(nn::abs::Network* n, const std::shared_ptr<nn::abs::LossFunction>& lossF) = 0;
 
         virtual void fit(const std::vector<std::vector<double>>& x,
                          const std::vector<std::vector<double>>& y, double learningRate, int epochs, int batchSize) = 0;

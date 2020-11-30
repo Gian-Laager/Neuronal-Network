@@ -67,8 +67,8 @@ TEST_F(Neuron, GetValue2Neurons_WillReturnRightValue)
 TEST_F(Neuron, SetWeights_WillWeightsBeSetRight)
 {
     nn::InputNeuron n0{};
-    nn::Neuron n2;
-    nn::Neuron n1;
+    nn::Neuron n1{};
+    nn::Neuron n2{};
 
     n0.connect(&n1);
     n0.connect(&n2);
@@ -79,8 +79,8 @@ TEST_F(Neuron, SetWeights_WillWeightsBeSetRight)
     ASSERT_EQ(n0.getConnectionNextLayer(&n1)->w, weights[&n1]);
     ASSERT_EQ(n0.getConnectionNextLayer(&n2)->w, weights[&n2]);
 
-    ASSERT_EQ(n1.getConnectionPreviousLayer(dynamic_cast<nn::abs::Neuron*>(&n0))->w, weights[&n1]);
-    ASSERT_EQ(n2.getConnectionPreviousLayer(dynamic_cast<nn::abs::Neuron*>(&n0))->w, weights[&n2]);
+    ASSERT_EQ(n1.getConnectionPreviousLayer(&n0)->w, weights[&n1]);
+    ASSERT_EQ(n2.getConnectionPreviousLayer(&n0)->w, weights[&n2]);
 }
 
 TEST_F(Neuron, SetB_WillBiasBeSetCorrectly)

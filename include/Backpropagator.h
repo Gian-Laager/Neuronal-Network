@@ -15,7 +15,7 @@ namespace nn
         {
             std::shared_ptr<nn::abs::Neuron> n;
             double biasGradient;
-            std::map<nn::abs::Neuron*, double> weightsGradient;
+            std::map<std::shared_ptr<nn::abs::Neuron>, double> weightsGradient;
             double activationGradient;
         };
 
@@ -42,58 +42,58 @@ namespace nn
         double getActivationGradientLastLayer(double yPred, double yTrue, int m,
                                               int j) const;
 
-        double getActivationGradient(const std::vector<std::vector<NeuronGradient>>& gradient, int m, int l, int j,
+        double getActivationGradient(int m, int l, int j,
                                      const std::shared_ptr<nn::abs::Neuron>& nlj) const;
 
-        double getBiasGradient(const std::vector<std::vector<NeuronGradient>>& gradient, int m, int l, int j,
+        double getBiasGradient(int m, int l, int j,
                                const std::shared_ptr<nn::abs::Neuron>& nlj) const;
 
-        double getWeightGradient(const std::vector<std::vector<NeuronGradient>>& gradient, int m, int l, int j,
+        double getWeightGradient(int m, int l, int j,
                                  const std::shared_ptr<nn::abs::Neuron>& nlj,
-                                 const std::shared_ptr<nn::abs::Neuron>& nl_1k) const;
+                                 double nlk1Activation) const;
 
-        void updateActivationGradient(std::vector<std::vector<NeuronGradient>>& gradient,
-                                      const std::shared_ptr<nn::abs::Neuron>& nlj,
-                                      const std::vector<std::pair<std::vector<double>, std::vector<double>>>& trainData,
-                                      int batch, int l, int j) const;
+        void updateActivationGradient(
+                const std::shared_ptr<nn::abs::Neuron>& nlj,
+                const std::vector<std::pair<std::vector<double>, std::vector<double>>>& trainData,
+                int batch, int l, int j);
 
-        void updateWeightsGradient(std::vector<std::vector<NeuronGradient>>& gradient, int batch, int l, int j,
-                                   const std::shared_ptr<nn::abs::Neuron>& nlj) const;
+        void updateWeightsGradient(int batch, int l, int j,
+                                   const std::shared_ptr<nn::abs::Neuron>& nlj);
 
-        void updateBiasGradient(int m, int l, int j, const std::shared_ptr<nn::abs::Neuron>& nlj,
-                                std::vector<std::vector<NeuronGradient>>& gradient) const;
+        void updateBiasGradient(int m, int l, int j, const std::shared_ptr<nn::abs::Neuron>& nlj);
 
         void
         updateGradient(const std::vector<std::pair<std::vector<double>, std::vector<double>>>& trainData,
-                       std::vector<std::vector<NeuronGradient>>& gradient, int m);
+                       int m);
 
         double getLoss(const std::vector<std::pair<std::vector<double>, std::vector<double>>>& trainData,
                        int m);
 
         std::vector<std::vector<nn::Backpropagator::NeuronGradient>> initializeGradient();
 
-        std::shared_ptr<nn::abs::Neuron>
-        setUpGradient(int l, int j, std::vector<std::vector<NeuronGradient>>& gradient) const;
+        std::shared_ptr<nn::abs::Neuron> setUpGradient(int l, int j);
 
         void calculateGradient(int batchSize,
                                const std::vector<std::pair<std::vector<double>, std::vector<double>>>& trainData,
-                               std::vector<std::vector<NeuronGradient>>& gradient, double& loss);
+                               double& loss);
 
-        void updateNetworkVariables(double learningRate, int batchSize,
-                                    const std::vector<std::vector<NeuronGradient>>& gradient);
+        void updateNetworkVariables(double learningRate, int batchSize);
 
         void updateBiases(double learningRate, int batchSize,
-                          const std::vector<std::vector<NeuronGradient>>& gradient, int l, int j);
+                          int l, int j);
 
         void updateWeights(double learningRate, int batchSize,
-                           const std::vector<std::vector<NeuronGradient>>& gradient, int l, int j);
+                           int l, int j);
+
+        void resetGradient();
 
         nn::abs::Network* net;
         std::shared_ptr<nn::abs::LossFunction> lossF;
         bool initialized = false;
+        std::vector<std::vector<NeuronGradient>> gradient;
 
     public:
-        void initialize(nn::abs::Network* n, std::shared_ptr<nn::abs::LossFunction> lossF) override;
+        void initialize(nn::abs::Network* n, const std::shared_ptr<nn::abs::LossFunction>& lossF) override;
 
         void fit(const std::vector<std::vector<double>>& x,
                  const std::vector<std::vector<double>>& y, double learningRate, int epochs, int batchSize) override;
