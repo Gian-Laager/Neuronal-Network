@@ -23,4 +23,8 @@
 #include <algorithm>
 #include <iterator>
 
+#ifdef NEURONAL_NETWORK_USE_SYCL
+#include "CL/sycl.hpp"
+#endif
+
 #endif //NEURONAL_NETWORK_PCH_H
