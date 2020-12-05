@@ -1,9 +1,10 @@
 #include "test/pch.h"
 
+//#define PERFORMANCE_TEST
+#ifdef PERFORMANCE_TEST
+
 #include "Neural_Network.h"
 
-#define PERFORMANCE_TEST
-#ifdef PERFORMANCE_TEST
 TEST(Performance, Predict284_16_16_9)
 {
 //    auto _tp1 = std::chrono::high_resolution_clock::now();
@@ -12,7 +13,6 @@ TEST(Performance, Predict284_16_16_9)
     net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(16, std::make_shared<nn::activations::Sigmoid>()));
     net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(16, std::make_shared<nn::activations::Sigmoid>()));
     net.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(9, std::make_shared<nn::activations::Sigmoid>()));
-
     std::vector<double> inputVector(284);
     for (auto& e : inputVector)
     {

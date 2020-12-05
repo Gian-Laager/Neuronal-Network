@@ -50,7 +50,7 @@ namespace nn
 
         void setBias(const std::vector<double>& bs) override;
 
-        void setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights) override;
+        void setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& w) override;
 
         std::vector<double> calculate() const override;
 
@@ -110,7 +110,7 @@ namespace nn
 
         void setBias(const std::vector<double>& bs) override;
 
-        void setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights) override;
+        void setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& w) override;
 
         EXCEPTION(IncompatibleVectorException);
     };
@@ -172,15 +172,15 @@ void nn::Layer<NeuronType>::setBias(const std::vector<double>& bs)
 
 template<typename NeuronType>
 requires std::is_base_of<nn::abs::Neuron, NeuronType>::value
-void nn::Layer<NeuronType>::setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& weights)
+void nn::Layer<NeuronType>::setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& w)
 {
-    IS_VECTOR_COMPATIBLE(weights);
+    IS_VECTOR_COMPATIBLE(w);
 
     for (int i = 0; i < neurons.size(); i++)
-        IS_VECTOR_MAP_COMPATIBLE(weights[i], neurons[i]);
+        IS_VECTOR_MAP_COMPATIBLE(w[i], neurons[i]);
 
     for (int i = 0; i < neurons.size(); i++)
-        neurons[i]->setWeights(weights[i]);
+        neurons[i]->setWeights(w[i]);
 }
 
 template<typename NeuronType>

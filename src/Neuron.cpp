@@ -22,7 +22,7 @@ nn::Neuron::getConnectionsPreviousLayer()
 
 void nn::Neuron::connect(nn::abs::Neuron* n)
 {
-    auto c = std::make_shared<Connection>(Connection{this, n});
+    auto c = std::make_shared<Connection>(this, n);
     connectionsNextLayer[n] = c;
     n->appendToPreviousConnection(this, c);
 }
