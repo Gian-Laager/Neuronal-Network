@@ -206,11 +206,11 @@ TEST_PF(Sycl, Layer, MultipleLayer_Calculate_WillOutPutRightValues)
     public:
         double operator()(double z) const override { return z * z; }
 
-        double derivative(double z) const override { return 1; }
+        double derivative(double z) const override { return 1.0; }
     };
 
-    std::shared_ptr<nn::sycl::abs::InputLayer> inputLayer = std::make_shared<nn::sycl::InputLayer>(2,
-                                                                                                   std::make_shared<FirstLayerActivation>());
+    std::shared_ptr<nn::sycl::InputLayer> inputLayer = std::make_shared<nn::sycl::InputLayer>(2,
+                                                                                              std::make_shared<FirstLayerActivation>());
     std::shared_ptr<nn::sycl::abs::Layer> layer1 = std::make_shared<nn::sycl::Layer>(3,
                                                                                      std::make_shared<SecondLayerActivation>());
     std::shared_ptr<nn::sycl::abs::Layer> layer2 = std::make_shared<nn::sycl::Layer>(2,
@@ -220,22 +220,35 @@ TEST_PF(Sycl, Layer, MultipleLayer_Calculate_WillOutPutRightValues)
     layer1->connect(layer2);
 
     inputLayer->setBias(std::vector<double>{0.2, -3});
+//    std::vector<nn::abs::Connection> w = {{0.75},
+//                                          {0.25},
+//                                          {0.2},
+//                                          {0.5},
+//                                          {0.3},
+//                                          {0.1}};
     std::vector<nn::abs::Connection> w = {{0.75},
-                                          {0.5},
-                                          {0.25},
                                           {0.3},
+                                          {0.5},
                                           {0.2},
+                                          {0.25},
                                           {0.1}};
     inputLayer->setWeights(cl::sycl::buffer<nn::abs::Connection, 2>{w.data(), cl::sycl::range<2>{
             (unsigned long) layer1->getSize(), (unsigned long) inputLayer->getSize()}});
     layer1->setBias(std::vector<double>{0.8, 0.3, 0.2});
-    w = {{0.2},
-         {0.4},
+//    std::vector<nn::abs::Connection> w2 = {{0.2},
+//         {0.4},
+//         {0.6},
+//         {1.0},
+//         {0.8},
+//         {1.2}};
+    std::vector<nn::abs::Connection> w2 = {{0.2},
          {0.6},
-         {0.8},
          {1.0},
+         {0.4},
+         {0.8},
          {1.2}};
-    layer1->setWeights(cl::sycl::buffer<nn::abs::Connection, 2>{w.data(),
+
+    layer1->setWeights(cl::sycl::buffer<nn::abs::Connection, 2>{w2.data(),
                                                                 cl::sycl::range<2>{(unsigned long) layer2->getSize(),
                                                                                    (unsigned long) layer1->getSize()}});
     layer2->setBias(std::vector<double>{-1.2, -0.1});
@@ -251,3 +264,54 @@ TEST_PF(Sycl, Layer, MultipleLayer_Calculate_WillOutPutRightValues)
     for (int i = 0; i < resultRight.size(); i++)
         ASSERT_EQ(resultCalc[i], resultRight[i]);
 }
+
+TEST_PF(Sycl, Layer, CalculateSycl_InputLayer_WillReturnRightOutut)
+{
+    nn::sycl::InputLayer inLayer{4};
+    std::vector<double> biases = {1.0, 2.0, 3.0, 4.0};
+    std::shared_ptr<nn::abs::Activation> activation = std::make_shared<nn::activations::Sigmoid>();
+    inLayer.setBias(biases);
+    inLayer.setActivation(activation);
+
+    std::vector<double> inputs = {10.0, 20.0, 30.0, 40.0};
+    std::vector<double> expectedOutputs(inLayer.getSize());
+    for (int i = 0; i < inLayer.getSize(); i++)
+        expectedOutputs[i] = (*activation)(inputs[i] + biases[i]);
+    inLayer.setValues(inputs);
+    cl::sycl::buffer<double, 1> output;
+//    cl::sycl::queue queue{cl::sycl::default_selector{}};
+//    queue.submit([&](cl::sycl::handler& cgh) {
+    output = inLayer.calculateSycl();
+//    });
+//    queue.wait();
+    for (int i = 0; i < inLayer.getSize(); i++)
+        ASSERT_EQ(output.get_access<cl::sycl::access::mode::read>()[i], expectedOutputs[i]);
+}
+
+TEST_PF(Sycl, Layer, CalculateSycl_InputLayerAndLayer_WillReturnRightOutut)
+{
+    std::shared_ptr<nn::sycl::InputLayer> inLayer = std::make_shared<nn::sycl::InputLayer>(4);
+    std::shared_ptr<nn::sycl::abs::Layer> layer = std::make_shared<nn::sycl::Layer>(2);
+    inLayer->connect(layer);
+
+    std::vector<double> biases = {1.0, 2.0, 3.0, 4.0};
+    std::shared_ptr<nn::abs::Activation> activation = std::make_shared<nn::activations::Sigmoid>();
+    inLayer->setBias(biases);
+    inLayer->setActivation(activation);
+    std::vector<nn::abs::Connection> weights = {
+            {1.0},
+            {2.0},
+            {2.0},
+            {1.0},
+            {1.0},
+            {2.0},
+            {2.0},
+            {1.0}
+    };
+    inLayer->setWeights(cl::sycl::buffer<nn::abs::Connection, 2>{weights.data(), cl::sycl::range<2>{2, 4}});
+    std::vector<double> biasLayer = {
+            1.0, 2.0
+    };
+    layer->setBias(biasLayer);
+}
+
