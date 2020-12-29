@@ -10,7 +10,7 @@ namespace nn::sycl
 
     class Layer : public nn::sycl::abs::Layer
     {
-    private:
+    protected:
         int size = 0;
         cl::sycl::buffer<double, 1> biases;
         mutable bool neuronsSet = false;
@@ -24,22 +24,23 @@ namespace nn::sycl
 
         std::shared_ptr<nn::sycl::abs::Connection> connectionNextLayer = nullptr;
 
-        void setNeurons() const;
+        virtual void setNeurons() const;
 
-        void setNeuronsIndex(int i) const;
+        virtual void setNeuronsIndex(int i) const;
 
-        void setNeuronsBiasIndex(int i) const;
+        virtual void setNeuronsBiasIndex(int i) const;
 
-        void setUpNeuronsVector() const;
+        virtual void setUpNeuronsVector() const;
 
-        void setNeuronsConnectionIndex(int i) const;
+        virtual void setNeuronsConnectionIndex(int i) const;
 
-        void checkForErrorsSetWeightsBuffer(const cl::sycl::buffer<nn::abs::Connection, 2>& w) const;
+        virtual void checkForErrorsSetWeightsBuffer(const cl::sycl::buffer<nn::abs::Connection, 2>& w) const;
 
         std::vector<double> calculateWithNonSyclNeurons() const;
 
         std::vector<double> calculateSyclWithVectorReturn() const;
 
+        void initValues();
     public:
         Layer(int numberOfNeurons);
 
@@ -81,6 +82,8 @@ namespace nn::sycl
         cl::sycl::buffer<double, 1>
         calculateSycl() const override;
 
+        void setWeights(const std::vector<std::vector<nn::abs::Connection>>& w) override;
+
 //        cl::sycl::buffer<double, 1>
 //        calculateSycl(cl::sycl::handler& cgh) const override;
 
@@ -89,33 +92,23 @@ namespace nn::sycl
         EXCEPTION(NoConnectionException);
     };
 
-    class InputLayer : public nn::sycl::abs::InputLayer
+    class InputLayer : public nn::sycl::Layer, public nn::sycl::abs::InputLayer
     {
-    private:
-        int size = 0;
-        cl::sycl::buffer<double, 1> biases;
-        mutable bool neuronsSet = false;
-        mutable std::vector<std::shared_ptr<nn::abs::InputNeuron>> neurons;
-        mutable cl::sycl::queue queue;
-        std::shared_ptr<nn::abs::Activation> activationFunction = std::make_shared<nn::activations::Linear>();
-
-        std::shared_ptr<nn::sycl::abs::Connection> connectionNextLayer = nullptr;
-        mutable bool valuesSet = false;
-        mutable cl::sycl::buffer<double, 1> values;
+    protected:
         mutable bool inputsSet = false;
         cl::sycl::buffer<double, 1> inputs;
 
-        void setNeurons() const;
+        void setNeurons() const override;
 
-        void setNeuronsIndex(int i) const;
+        void setNeuronsIndex(int i) const override;
 
-        void setNeuronsBiasIndex(int i) const;
+        void setNeuronsBiasIndex(int i) const override;
 
-        void setUpNeuronsVector() const;
+        void setUpNeuronsVector() const override;
 
-        void setNeuronsConnectionIndex(int i) const;
+        void setNeuronsConnectionIndex(int i) const override;
 
-        void checkForErrorsSetWeightsBuffer(const cl::sycl::buffer<nn::abs::Connection, 2>& w) const;
+        void checkForErrorsSetWeightsBuffer(const cl::sycl::buffer<nn::abs::Connection, 2>& w) const override;
 
     public:
         InputLayer(int numberOfNeurons);
@@ -161,6 +154,8 @@ namespace nn::sycl
 
         cl::sycl::buffer<double, 1>
         calculateSycl() const override;
+
+        void setWeights(const std::vector<std::vector<nn::abs::Connection>>& w) override;
 
 //        cl::sycl::buffer<double, 1>
 //        calculateSycl(cl::sycl::handler& cgh) const override;

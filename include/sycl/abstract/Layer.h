@@ -19,6 +19,8 @@ namespace nn::sycl::abs
 
         virtual void setWeights(const cl::sycl::buffer<nn::abs::Connection, 2>& w) = 0;
 
+        virtual void setWeights(const std::vector<std::vector<nn::abs::Connection>>& w) = 0;
+
         virtual cl::sycl::buffer<double, 1> calculateSycl() const = 0;
 
 //        virtual cl::sycl::buffer<double, 1>
