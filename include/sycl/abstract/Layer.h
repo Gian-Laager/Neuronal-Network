@@ -23,8 +23,7 @@ namespace nn::sycl::abs
 
         virtual cl::sycl::buffer<double, 1> calculateSycl() const = 0;
 
-//        virtual cl::sycl::buffer<double, 1>
-//        calculateSycl(cl::sycl::handler& cgh) const = 0;
+        void setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& w) override = 0;
     };
 
     class InputLayer : public nn::abs::InputLayer, public nn::sycl::abs::Layer
@@ -42,7 +41,7 @@ namespace nn::sycl::abs
                                                                            to(to)
         {
             weights = cl::sycl::buffer<nn::abs::Connection, 2>{
-                    cl::sycl::range<2>{(unsigned long) from->getSize(), (unsigned long) to->getSize()}};
+                    cl::sycl::range<2>{(unsigned long) to->getSize(), (unsigned long) from->getSize()}};
         }
 
         Connection() = default;

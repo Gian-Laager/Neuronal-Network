@@ -57,6 +57,7 @@ void nn::sycl::Layer::setActivation(const std::shared_ptr<nn::abs::Activation>& 
 
 void nn::sycl::Layer::setBias(const std::vector<double>& bs)
 {
+    resetCaches();
     if (bs.size() != size)
         throw IncompatibleVectorException("The vector of biases has to have the same size as the layer.");
     auto biases_temp = cl::sycl::buffer<double, 1>{bs.data(), cl::sycl::range<1>{bs.size()}};
@@ -73,12 +74,32 @@ void nn::sycl::Layer::setBias(const std::vector<double>& bs)
 
 void nn::sycl::Layer::setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& w)
 {
-
+    cl::sycl::buffer<nn::abs::Connection, 2> w_b{
+            cl::sycl::range<2>{(unsigned long) connectionNextLayer->to->getSize(), (unsigned long) getSize()}};
+    queue.submit([&](cl::sycl::handler& cgh) {
+        auto w_acc = w_b.get_access<cl::sycl::access::mode::write>();
+        auto map_acc = cl::sycl::buffer<std::map<nn::abs::Neuron*, double>, 1>{w.data(), cl::sycl::range<1>{
+                w.size()}}.get_access<cl::sycl::access::mode::read>();
+        cgh.parallel_for(map_acc.get_range(), [=](cl::sycl::id<1> i) {
+            for (int j = 0; j < map_acc[i].size(); j++)
+            {
+                w_acc[j][i[0]] = nn::abs::Connection{
+                        map_acc[i][(nn::abs::Neuron*) connectionNextLayer->to->getNeuron(j).get()]};
+                std::cout << "map at index " << i[0] << ", " << j << ": "
+                          << map_acc[i][(nn::abs::Neuron*) connectionNextLayer->to->getNeuron(j).get()] << std::endl;
+                std::cout << "weights at index " << i[0] << ", " << j << ": "
+                          << w_acc[j][i[0]].w << std::endl;
+            }
+        });
+    });
+    queue.wait();
+    setWeights(w_b);
 }
 
 void nn::sycl::Layer::resetCaches() const
 {
     valuesSet = false;
+    neuronsSet = false;
 }
 
 nn::sycl::Layer::Layer(int numberOfNeurons) : size(numberOfNeurons),
@@ -95,9 +116,9 @@ void nn::sycl::Layer::setNeurons() const
     setUpNeuronsVector();
     for (int i = 0; i < size; i++)
         setNeuronsIndex(i);
-
     neuronsSet = true;
-    for (int i = 0; i < size; i++)
+
+    for (int i = 0; i < getSize(); i++)
         setNeuronsConnectionIndex(i);
 }
 
@@ -112,6 +133,16 @@ void nn::sycl::Layer::setNeuronsIndex(int i) const
     neurons.emplace_back(std::make_shared<nn::Neuron>());
     setNeuronsBiasIndex(i);
     neurons[i]->setActivation(activationFunction);
+}
+
+std::map<nn::abs::Neuron*, double> nn::sycl::Layer::getWeightsMap(int index) const
+{
+    std::map<nn::abs::Neuron*, double> map;
+    auto weights_acc = const_cast<cl::sycl::buffer<nn::abs::Connection, 2>&>(connectionNextLayer->weights).get_access<cl::sycl::access::mode::read>();
+    std::cout << "range: " << weights_acc.get_range()[0] << ", " << weights_acc.get_range()[1] << std::endl;
+    for (int i = 0; i < connectionNextLayer->to->getSize(); i++)
+        map[connectionNextLayer->to->getNeuron(i).get()] = weights_acc[i][index].w;
+    return std::move(map);
 }
 
 void nn::sycl::Layer::setNeuronsBiasIndex(int i) const
@@ -148,6 +179,7 @@ void nn::sycl::Layer::setConnectionNextLayer(const std::shared_ptr<nn::sycl::abs
 
 void nn::sycl::Layer::connect(const std::shared_ptr<nn::sycl::abs::Layer>& l)
 {
+    resetCaches();
     std::shared_ptr<nn::sycl::abs::Connection> c = std::make_shared<nn::sycl::abs::Connection>(this, l.get());
     setConnectionNextLayer(c);
     l->setConnectionPreviousLayer(c);
@@ -156,8 +188,13 @@ void nn::sycl::Layer::connect(const std::shared_ptr<nn::sycl::abs::Layer>& l)
 void nn::sycl::Layer::setNeuronsConnectionIndex(int i) const
 {
     if (connectionNextLayer != nullptr)
+    {
         for (int j = 0; j < connectionNextLayer->to->getSize(); j++)
             neurons[i]->connect(connectionNextLayer->to->getNeuron(j).get());
+
+        std::cout << getSize() << std::endl;
+        neurons[i]->setWeights(getWeightsMap(i));
+    }
 
     if (connectionPreviousLayer != nullptr)
         for (int j = 0; j < connectionPreviousLayer->from->getSize(); j++)
@@ -166,7 +203,7 @@ void nn::sycl::Layer::setNeuronsConnectionIndex(int i) const
 
 void nn::sycl::Layer::setWeights(const cl::sycl::buffer<nn::abs::Connection, 2>& w)
 {
-    checkForErrorsSetWeightsBuffer(w);
+    resetCaches();
     connectionNextLayer->weights = w;
 }
 
@@ -199,30 +236,6 @@ cl::sycl::buffer<double, 1>
 nn::sycl::Layer::calculateSycl() const
 {
     auto input = connectionPreviousLayer->from->calculateSycl();
-//    queue.submit([&](cl::sycl::handler& cgh) {
-//        auto values_acc = values.get_access<cl::sycl::access::mode::write>();
-//        auto bias_acc = const_cast<cl::sycl::buffer<double, 1>&>(biases).get_access<cl::sycl::access::mode::read>();
-//        auto weights_acc = connectionPreviousLayer->weights.get_access<cl::sycl::access::mode::read>();
-//        auto activation = cl::sycl::buffer<nn::abs::Activation, 1>{activationFunction.get(), cl::sycl::range<1>{
-//                1}}.get_access<cl::sycl::access::mode::read>();
-//        auto input_acc = input.get_access<cl::sycl::access::mode::read>();
-//        cgh.parallel_for(
-//                cl::sycl::range<1>{(unsigned long) getSize()},
-//                [=](cl::sycl::id<1> i) {
-//                    for (unsigned long j = 0; j < connectionPreviousLayer->from->getSize(); j++)
-//                    {
-//                        values_acc[i] += input_acc[j] * weights_acc[cl::sycl::id<2>{i[0], j}].w;
-//                        std::cout << "Weights at index " << i[0] << ", " << j << ": "
-//                                  << weights_acc[cl::sycl::id<2>{i[0], j}].w << std::endl;
-//
-//                        if (i[0] == getSize() - 1)
-//                            std::cout << "Input at index " << j << ": " << input_acc[j] + bias_acc[i] << std::endl;
-//                    }
-//                    std::cout << "Z " << values_acc[i[0]] << " at index " << i[0] << std::endl;
-//
-//                });
-//    });
-//    queue.wait();
     queue.submit([&](cl::sycl::handler& cgh) {
         auto values_acc = values.get_access<cl::sycl::access::mode::write>();
         auto bias_acc = const_cast<cl::sycl::buffer<double, 1>&>(biases).get_access<cl::sycl::access::mode::read>();
@@ -233,27 +246,12 @@ nn::sycl::Layer::calculateSycl() const
 
         cgh.parallel_for(cl::sycl::range<1>{(unsigned long) getSize()}, [=](cl::sycl::id<1> i) {
             for (unsigned long j = 0; j < connectionPreviousLayer->from->getSize(); j++)
-            {
                 values_acc[i] += input_acc[j] * weights_acc[i[0]][j].w;
-                std::cout << "Weights at index " << i[0] << ", " << j << ": "
-                          << weights_acc[i[0]][j].w << std::endl;
-
-                if (i[0] == getSize() - 1)
-                    std::cout << "Input at index " << j << ": " << input_acc[j] << std::endl;
-            }
-            std::cout << "Z " << values_acc[i[0]] << " at index " << i[0] << std::endl;
             values_acc[i] += bias_acc[i];
             values_acc[i] = activation[0](values_acc[i]);
         });
-
-//            std::cout << "Input at index " << i << ": " << input_acc[i] << std::endl;
     });
     queue.wait();
-    auto values_acc = values.get_access<cl::sycl::access::mode::write>();
-    auto bias_acc = const_cast<cl::sycl::buffer<double, 1>&>(biases).get_access<cl::sycl::access::mode::read>();
-    for (int i = 0; i < values.get_range()[0]; i++)
-        std::cout << "Values at index " << i << ": " << values_acc[i] << ", bias: " << bias_acc[i]
-                  << std::endl;
     valuesSet = true;
     return values;
 }
@@ -280,31 +278,6 @@ void nn::sycl::Layer::setWeights(const std::vector<std::vector<nn::abs::Connecti
     setWeights(b_w);
 }
 
-//cl::sycl::buffer<double, 1>
-//nn::sycl::Layer::calculateSycl(cl::sycl::handler& cgh) const
-//{
-//    {
-//        auto values_acc = values.get_access<cl::sycl::access::mode::write>();
-//        auto bias_acc = const_cast<cl::sycl::buffer<double, 1>&>(biases).get_access<cl::sycl::access::mode::read>();
-//        auto weights_acc = connectionPreviousLayer->weights.get_access<cl::sycl::access::mode::read>();
-//        auto activation = cl::sycl::buffer<nn::abs::Activation, 1>{activationFunction.get(), cl::sycl::range<1>{
-//                1}}.get_access<cl::sycl::access::mode::read>();
-//        auto input_acc = connectionPreviousLayer->from->calculateSycl().get_access<cl::sycl::access::mode::read>();
-//        cgh.parallel_for(
-//                cl::sycl::range<2>{(unsigned long) getSize(), (unsigned long) connectionPreviousLayer->from->getSize()},
-//                [=](cl::sycl::id<2> i) {
-//                    values_acc[i[0]] += input_acc[i[1]] * weights_acc[i].w;
-//                });
-//
-//        cgh.parallel_for(cl::sycl::range<1>{(unsigned long) getSize()}, [=](cl::sycl::id<1> i) {
-//            values_acc[i] += bias_acc[i];
-//            values_acc[i] = activation[0](values_acc[i]);
-//        });
-//        queue.wait();
-//    }
-//    return values;
-//}
-
 int nn::sycl::InputLayer::getSize() const
 {
     return size;
@@ -312,6 +285,7 @@ int nn::sycl::InputLayer::getSize() const
 
 void nn::sycl::InputLayer::connect(const std::shared_ptr<nn::abs::Layer>& l)
 {
+    resetCaches();
     for (auto& neuronThisLayer : getNeurons())
         for (auto& neuronsNextLayer : l->getNeurons())
             neuronThisLayer->connect(neuronsNextLayer.get());
@@ -391,12 +365,13 @@ void nn::sycl::InputLayer::setBias(const std::vector<double>& bs)
 
 void nn::sycl::InputLayer::setWeights(const std::vector<std::map<nn::abs::Neuron*, double>>& w)
 {
-
+    nn::sycl::Layer::setWeights(w);
 }
 
 void nn::sycl::InputLayer::resetCaches() const
 {
-    valuesSet = false;
+    nn::sycl::Layer::resetCaches();
+    inputsSet = false;
 }
 
 nn::sycl::InputLayer::InputLayer(int numberOfNeurons) : nn::sycl::Layer(numberOfNeurons)
@@ -508,8 +483,6 @@ nn::sycl::InputLayer::calculateSycl() const
         auto values_acc = values.get_access<cl::sycl::access::mode::write>();
         cgh.parallel_for(cl::sycl::range<1>{(unsigned long) getSize()}, [=](cl::sycl::id<1> i) {
             values_acc[i] = activation_acc[0](inputs_acc[i] + bias_acc[i]);
-            std::cout << "Values at index " << i[0] << ": " << values_acc[i] << " and bias: " << bias_acc[i]
-                      << std::endl;
         });
     });
     queue.wait();
@@ -521,19 +494,3 @@ void nn::sycl::InputLayer::setWeights(const std::vector<std::vector<nn::abs::Con
     nn::sycl::Layer::setWeights(w);
 }
 
-//cl::sycl::buffer<double, 1>
-//nn::sycl::InputLayer::calculateSycl(cl::sycl::handler& cgh) const
-//{
-//    {
-//        auto bias_acc = const_cast<cl::sycl::buffer<double, 1>*>(&biases)->get_access<cl::sycl::access::mode::read>();
-//        auto inputs_acc = const_cast<cl::sycl::buffer<double, 1>*>(&inputs)->get_access<cl::sycl::access::mode::read>();
-//        auto activation_acc = cl::sycl::buffer<nn::abs::Activation, 1>{activationFunction.get(), cl::sycl::range<1>{
-//                1}}.get_access<cl::sycl::access::mode::read>();
-//        auto values_acc = values.get_access<cl::sycl::access::mode::write>();
-//        cgh.parallel_for(cl::sycl::range<1>{(unsigned long) getSize()}, [=](cl::sycl::id<1> i) {
-//            values_acc[i] = activation_acc[0](inputs_acc[i] + bias_acc[i]);
-//        });
-//        queue.wait();
-//    }
-//    return values;
-//}

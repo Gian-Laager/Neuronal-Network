@@ -369,3 +369,23 @@ TEST_PF(Sycl, Layer, SetWeights_2dVectors_WillSetWeightsRight)
             ASSERT_EQ(resultCalc[i], resultRight[i]) << j;
     }
 }
+
+TEST_PF(Sycl, Layer, SetWeightsWithMap_WillWeightsBeSetCorrectly)
+{
+    std::shared_ptr<nn::sycl::abs::Layer> layer0 = std::make_shared<nn::sycl::Layer>(2);
+    std::shared_ptr<nn::sycl::abs::Layer> layer1 = std::make_shared<nn::sycl::Layer>(3);
+    layer0->connect(layer1);
+    layer0->setWeights(std::vector<std::map<nn::abs::Neuron*, double>>{
+            std::map<nn::abs::Neuron*, double>{{layer1->getNeuron(0).get(), 00},
+                                               {layer1->getNeuron(1).get(), 01},
+                                               {layer1->getNeuron(2).get(), 02}},
+
+            std::map<nn::abs::Neuron*, double>{{layer1->getNeuron(0).get(), 10},
+                                               {layer1->getNeuron(1).get(), 11},
+                                               {layer1->getNeuron(2).get(), 12}}});
+    for (int i = 0; i < layer0->getSize(); i++)
+        for (int j = 0; j < layer1->getSize(); j++)
+//                ASSERT_EQ(layer0->getNeuron(i)->getConnectionNextLayer(layer1->getNeuron(j).get())->w, i * 10 + j) << "with k = " << k;
+            std::cout << layer0->getNeuron(i)->getConnectionNextLayer(layer1->getNeuron(j).get())->w << " == "
+                      << i * 10 + j << std::endl;
+}

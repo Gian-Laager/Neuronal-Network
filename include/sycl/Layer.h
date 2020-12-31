@@ -40,6 +40,8 @@ namespace nn::sycl
 
         std::vector<double> calculateSyclWithVectorReturn() const;
 
+        std::map<nn::abs::Neuron*, double> getWeightsMap(int index) const;
+
         void initValues();
     public:
         Layer(int numberOfNeurons);
@@ -83,9 +85,6 @@ namespace nn::sycl
         calculateSycl() const override;
 
         void setWeights(const std::vector<std::vector<nn::abs::Connection>>& w) override;
-
-//        cl::sycl::buffer<double, 1>
-//        calculateSycl(cl::sycl::handler& cgh) const override;
 
         EXCEPTION(IncompatibleVectorException);
 
