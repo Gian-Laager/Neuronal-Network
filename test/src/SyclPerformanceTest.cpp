@@ -2,40 +2,44 @@
 
 int main()
 {
-    cl::sycl::queue queue;
-    nn::Network network{3};
-    network.pushLayer(std::make_shared<nn::InputLayer<nn::InputNeuron>>(2, std::make_shared<nn::activations::Sigmoid>()));
-    network.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(3, std::make_shared<nn::activations::Relu>()));
-    network.pushLayer(std::make_shared<nn::Layer<nn::Neuron>>(2, std::make_shared<nn::activations::Tanh>()));
+//    auto _tp1 = std::chrono::high_resolution_clock::now();
+    std::vector<std::shared_ptr<nn::sycl::Layer>> layers;
+    auto inputLayer = std::make_shared<nn::sycl::InputLayer>(284, std::make_shared<nn::activations::Sigmoid>());
+    layers.reserve(20);
+    for (int i = 0; i < 20; i++)
+        layers.push_back(std::make_shared<nn::sycl::Layer>(284, std::make_shared<nn::activations::Sigmoid>()));
+    layers.push_back(std::make_shared<nn::sycl::Layer>(16, std::make_shared<nn::activations::Sigmoid>()));
+    layers.push_back(std::make_shared<nn::sycl::Layer>(16, std::make_shared<nn::activations::Sigmoid>()));
+    layers.push_back(std::make_shared<nn::sycl::Layer>(9, std::make_shared<nn::activations::Sigmoid>()));
+    inputLayer->connect(static_pointer_cast<nn::sycl::abs::Layer>(layers[0]));
+    for (int i = 0; i < layers.size() - 1; i++)
+        layers[i]->connect(static_pointer_cast<nn::sycl::abs::Layer>(layers[i + 1]));
+    std::vector<double> inputVector(284);
+    for (auto& e : inputVector)
+    {
+        int r1 = rand();
+        int r2 = rand();
+        long r = r1 << 31 | r2;
+        e = *(double*) &r;
+    }
 
-    network.setBias(0, std::vector<double>{0.2, -3});
-    network.setWeights(0, std::vector<std::map<nn::abs::Neuron*, double>>{
-            std::map<nn::abs::Neuron*, double>{{network.getLayer(1)->getNeuron(0).get(), 0.75},
-                                               {network.getLayer(1)->getNeuron(1).get(), 0.5},
-                                               {network.getLayer(1)->getNeuron(2).get(), 0.25}},
+    int iterations = 10000;
+//    std::vector<std::chrono::duration<double>> times(iterations);
+    for (int i = 0; i < iterations; i++)
+    {
+//        auto tp1 = std::chrono::high_resolution_clock::now();
+        inputLayer->setValues(inputVector);
+        std::vector<double> resultCalc = layers[layers.size() - 1]->calculate();
+//        auto tp2 = std::chrono::high_resolution_clock::now();
+//        std::chrono::duration<double> elapsedTime = tp2 - tp1;
+//        std::cout << "Time spend on net.calculate: " << elapsedTime.count() * 1000 << " ms" << std::endl;
+//        times.push_back(elapsedTime);
+    }
 
-            std::map<nn::abs::Neuron*, double>{{network.getLayer(1)->getNeuron(0).get(), 0.3},
-                                               {network.getLayer(1)->getNeuron(1).get(), 0.2},
-                                               {network.getLayer(1)->getNeuron(2).get(), 0.1}}});
+//    double addedTime = 0;
+//    for (auto& t : times)
+//        addedTime += t.count() * 1000;
 
-    network.setBias(1, std::vector<double>{0.8, 0.3, 0.2});
-    network.setWeights(1, std::vector<std::map<nn::abs::Neuron*, double>>{
-            std::map<nn::abs::Neuron*, double>{{network.getLayer(2)->getNeuron(0).get(), 0.2},
-                                               {network.getLayer(2)->getNeuron(1).get(), 0.4}},
-
-            std::map<nn::abs::Neuron*, double>{{network.getLayer(2)->getNeuron(0).get(), 0.6},
-                                               {network.getLayer(2)->getNeuron(1).get(), 0.8}},
-
-            std::map<nn::abs::Neuron*, double>{{network.getLayer(2)->getNeuron(0).get(), 1},
-                                               {network.getLayer(2)->getNeuron(1).get(), 1.2}}});
-
-    network.setBias(2, std::vector<double>{-1.2, -0.1});
-
-    network.setInputs(std::vector{0.5, 0.25});
-
-    for (auto n : network.calculate())
-        std::cout << n << std::endl;
-
-    return 0;
+//    std::cout << "average time: " << addedTime / iterations << " ms" << std::endl;
 }
 

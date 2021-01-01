@@ -82,14 +82,8 @@ void nn::sycl::Layer::setWeights(const std::vector<std::map<nn::abs::Neuron*, do
                 w.size()}}.get_access<cl::sycl::access::mode::read>();
         cgh.parallel_for(map_acc.get_range(), [=](cl::sycl::id<1> i) {
             for (int j = 0; j < map_acc[i].size(); j++)
-            {
                 w_acc[j][i[0]] = nn::abs::Connection{
                         map_acc[i][(nn::abs::Neuron*) connectionNextLayer->to->getNeuron(j).get()]};
-                std::cout << "map at index " << i[0] << ", " << j << ": "
-                          << map_acc[i][(nn::abs::Neuron*) connectionNextLayer->to->getNeuron(j).get()] << std::endl;
-                std::cout << "weights at index " << i[0] << ", " << j << ": "
-                          << w_acc[j][i[0]].w << std::endl;
-            }
         });
     });
     queue.wait();
@@ -139,7 +133,6 @@ std::map<nn::abs::Neuron*, double> nn::sycl::Layer::getWeightsMap(int index) con
 {
     std::map<nn::abs::Neuron*, double> map;
     auto weights_acc = const_cast<cl::sycl::buffer<nn::abs::Connection, 2>&>(connectionNextLayer->weights).get_access<cl::sycl::access::mode::read>();
-    std::cout << "range: " << weights_acc.get_range()[0] << ", " << weights_acc.get_range()[1] << std::endl;
     for (int i = 0; i < connectionNextLayer->to->getSize(); i++)
         map[connectionNextLayer->to->getNeuron(i).get()] = weights_acc[i][index].w;
     return std::move(map);
@@ -191,8 +184,6 @@ void nn::sycl::Layer::setNeuronsConnectionIndex(int i) const
     {
         for (int j = 0; j < connectionNextLayer->to->getSize(); j++)
             neurons[i]->connect(connectionNextLayer->to->getNeuron(j).get());
-
-        std::cout << getSize() << std::endl;
         neurons[i]->setWeights(getWeightsMap(i));
     }
 

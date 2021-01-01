@@ -65,10 +65,7 @@ void nn::Neuron::setWeights(const std::map<nn::abs::Neuron*, double>& weights)
     isInValidKeyInWeights(weights);
 
     for (auto& w : weights)
-    {
         connectionsNextLayer[w.first]->w = w.second;
-        std::cout << "w: " << w.second << std::endl;
-    }
 }
 
 void nn::Neuron::isInValidKeyInWeights(const std::map<nn::abs::Neuron*, double>& weights) const

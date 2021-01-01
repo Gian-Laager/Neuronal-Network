@@ -187,74 +187,81 @@ TEST_PF(Sycl, Layer, InputLayer_SetValue_WillCalculateReturnRightOutPut)
 
 TEST_PF(Sycl, Layer, MultipleLayer_Calculate_WillOutPutRightValues)
 {
-    for (int j = 0; j < 1000; j++)
+    class FirstLayerActivation : public nn::abs::Activation
     {
-        class FirstLayerActivation : public nn::abs::Activation
-        {
-        public:
-            double operator()(double z) const override { return z - 1; }
+    public:
+        double operator()(double z) const override { return z - 1; }
 
-            double derivative(double z) const override { return 1; }
-        };
-        class SecondLayerActivation : public nn::abs::Activation
-        {
-        public:
-            double operator()(double z) const override { return 1 / z; }
+        double derivative(double z) const override { return 1; }
+    };
+    class SecondLayerActivation : public nn::abs::Activation
+    {
+    public:
+        double operator()(double z) const override { return 1 / z; }
 
-            double derivative(double z) const override { return 1; }
-        };
-        class ThirdLayerActivation : public nn::abs::Activation
-        {
-        public:
-            double operator()(double z) const override { return z * z; }
+        double derivative(double z) const override { return 1; }
+    };
+    class ThirdLayerActivation : public nn::abs::Activation
+    {
+    public:
+        double operator()(double z) const override { return z * z; }
 
-            double derivative(double z) const override { return 1.0; }
-        };
+        double derivative(double z) const override { return 1.0; }
+    };
 
-        std::shared_ptr<nn::sycl::InputLayer> inputLayer = std::make_shared<nn::sycl::InputLayer>(2,
-                                                                                                  std::make_shared<FirstLayerActivation>());
-        std::shared_ptr<nn::sycl::abs::Layer> layer1 = std::make_shared<nn::sycl::Layer>(3,
-                                                                                         std::make_shared<SecondLayerActivation>());
-        std::shared_ptr<nn::sycl::abs::Layer> layer2 = std::make_shared<nn::sycl::Layer>(2,
-                                                                                         std::make_shared<ThirdLayerActivation>());
+    std::shared_ptr<nn::sycl::InputLayer> inputLayer = std::make_shared<nn::sycl::InputLayer>(2,
+                                                                                              std::make_shared<FirstLayerActivation>());
+    std::shared_ptr<nn::sycl::abs::Layer> layer1 = std::make_shared<nn::sycl::Layer>(3,
+                                                                                     std::make_shared<SecondLayerActivation>());
+    std::shared_ptr<nn::sycl::abs::Layer> layer2 = std::make_shared<nn::sycl::Layer>(2,
+                                                                                     std::make_shared<ThirdLayerActivation>());
 
-        inputLayer->connect(layer1);
-        layer1->connect(layer2);
+    inputLayer->connect(layer1);
+    layer1->connect(layer2);
 
-        inputLayer->setBias(std::vector<double>{0.2, -3});
-        std::vector<nn::abs::Connection> w = {{0.75},
-                                              {0.3},
-                                              {0.5},
-                                              {0.2},
-                                              {0.25},
-                                              {0.1}};
-        inputLayer->setWeights(cl::sycl::buffer<nn::abs::Connection, 2>{w.data(), cl::sycl::range<2>{
-                (unsigned long) layer1->getSize(), (unsigned long) inputLayer->getSize()}});
-        layer1->setBias(std::vector<double>{0.8, 0.3, 0.2});
-        std::vector<nn::abs::Connection> w2 = {{0.2},
-                                               {0.6},
-                                               {1.0},
-                                               {0.4},
-                                               {0.8},
-                                               {1.2}};
+    inputLayer->setBias(std::vector<double>{0.2, -3});
+    std::vector<nn::abs::Connection> w = {{0.75},
+                                          {0.3},
+                                          {0.5},
+                                          {0.2},
+                                          {0.25},
+                                          {0.1}};
+    inputLayer->setWeights(cl::sycl::buffer<nn::abs::Connection, 2>{w.data(), cl::sycl::range<2>{
+            (unsigned long) layer1->getSize(), (unsigned long) inputLayer->getSize()}});
+    layer1->setBias(std::vector<double>{0.8, 0.3, 0.2});
+    std::vector<nn::abs::Connection> w2 = {{0.2},
+                                           {0.6},
+                                           {1.0},
+                                           {0.4},
+                                           {0.8},
+                                           {1.2}};
 
-        layer1->setWeights(cl::sycl::buffer<nn::abs::Connection, 2>{w2.data(),
-                                                                    cl::sycl::range<2>{
-                                                                            (unsigned long) layer2->getSize(),
-                                                                            (unsigned long) layer1->getSize()}});
-        layer2->setBias(std::vector<double>{-1.2, -0.1});
+    layer1->setWeights(cl::sycl::buffer<nn::abs::Connection, 2>{w2.data(),
+                                                                cl::sycl::range<2>{
+                                                                        (unsigned long) layer2->getSize(),
+                                                                        (unsigned long) layer1->getSize()}});
+    layer2->setBias(std::vector<double>{-1.2, -0.1});
 
-        std::vector<double> inputs = {0.5, 0.25};
-        inputLayer->setValues(inputs);
-        std::vector<double> resultCalc = layer2->calculate();
-        std::vector<double> resultRight = {130321.0 / 3025.0, 48.450036730945811};
+    std::vector<double> inputs = {0.5, 0.25};
+    inputLayer->setValues(inputs);
 
-        ASSERT_EQ(resultCalc.size(), layer2->getSize());
-        ASSERT_EQ(resultCalc.size(), resultRight.size());
+#ifdef MessureTimeNeededToCalculate
+    auto tp1 = std::chrono::high_resolution_clock::now();
+#endif
+    std::vector<double> resultCalc = layer2->calculate();
+#ifdef MessureTimeNeededToCalculate
+    auto tp2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsedTime = tp2 - tp1;
 
-        for (int i = 0; i < resultRight.size(); i++)
-            ASSERT_EQ(resultCalc[i], resultRight[i]) << j;
-    }
+    std::cout << "Time spend on net.calculate: " << elapsedTime.count() * 1000 << " ms" << std::endl;
+#endif
+    std::vector<double> resultRight = {130321.0 / 3025.0, 48.450036730945811};
+
+    ASSERT_EQ(resultCalc.size(), layer2->getSize());
+    ASSERT_EQ(resultCalc.size(), resultRight.size());
+
+    for (int i = 0; i < resultRight.size(); i++)
+        ASSERT_EQ(resultCalc[i], resultRight[i]);
 }
 
 TEST_PF(Sycl, Layer, CalculateSycl_InputLayer_WillReturnRightOutut)
@@ -307,67 +314,64 @@ TEST_PF(Sycl, Layer, CalculateSycl_InputLayerAndLayer_WillReturnRightOutut)
 
 TEST_PF(Sycl, Layer, SetWeights_2dVectors_WillSetWeightsRight)
 {
-    for (int j = 0; j < 1000; j++)
+    class FirstLayerActivation : public nn::abs::Activation
     {
-        class FirstLayerActivation : public nn::abs::Activation
-        {
-        public:
-            double operator()(double z) const override { return z - 1; }
+    public:
+        double operator()(double z) const override { return z - 1; }
 
-            double derivative(double z) const override { return 1; }
-        };
+        double derivative(double z) const override { return 1; }
+    };
 
-        class SecondLayerActivation : public nn::abs::Activation
-        {
-        public:
-            double operator()(double z) const override { return 1 / z; }
+    class SecondLayerActivation : public nn::abs::Activation
+    {
+    public:
+        double operator()(double z) const override { return 1 / z; }
 
-            double derivative(double z) const override { return 1; }
-        };
+        double derivative(double z) const override { return 1; }
+    };
 
-        class ThirdLayerActivation : public nn::abs::Activation
-        {
-        public:
-            double operator()(double z) const override { return z * z; }
+    class ThirdLayerActivation : public nn::abs::Activation
+    {
+    public:
+        double operator()(double z) const override { return z * z; }
 
-            double derivative(double z) const override { return 1.0; }
-        };
+        double derivative(double z) const override { return 1.0; }
+    };
 
-        std::shared_ptr<nn::sycl::InputLayer> inputLayer = std::make_shared<nn::sycl::InputLayer>(2,
-                                                                                                  std::make_shared<FirstLayerActivation>());
-        std::shared_ptr<nn::sycl::abs::Layer> layer1 = std::make_shared<nn::sycl::Layer>(3,
-                                                                                         std::make_shared<SecondLayerActivation>());
-        std::shared_ptr<nn::sycl::abs::Layer> layer2 = std::make_shared<nn::sycl::Layer>(2,
-                                                                                         std::make_shared<ThirdLayerActivation>());
+    std::shared_ptr<nn::sycl::InputLayer> inputLayer = std::make_shared<nn::sycl::InputLayer>(2,
+                                                                                              std::make_shared<FirstLayerActivation>());
+    std::shared_ptr<nn::sycl::abs::Layer> layer1 = std::make_shared<nn::sycl::Layer>(3,
+                                                                                     std::make_shared<SecondLayerActivation>());
+    std::shared_ptr<nn::sycl::abs::Layer> layer2 = std::make_shared<nn::sycl::Layer>(2,
+                                                                                     std::make_shared<ThirdLayerActivation>());
 
-        inputLayer->connect(layer1);
-        layer1->connect(layer2);
+    inputLayer->connect(layer1);
+    layer1->connect(layer2);
 
-        inputLayer->setBias(std::vector<double>{0.2, -3}
-        );
-        std::vector<std::vector<nn::abs::Connection>> w = {{{0.75}, {0.3}},
-                                                           {{0.5},  {0.2}},
-                                                           {{0.25}, {0.1}}};
-        inputLayer->setWeights(w);
-        layer1->setBias(std::vector<double>{0.8, 0.3, 0.2});
-        std::vector<std::vector<nn::abs::Connection>> w2 = {{{0.2}, {0.6}, {1.0},},
-                                                            {{0.4}, {0.8}, {1.2}}};
+    inputLayer->setBias(std::vector<double>{0.2, -3}
+    );
+    std::vector<std::vector<nn::abs::Connection>> w = {{{0.75}, {0.3}},
+                                                       {{0.5},  {0.2}},
+                                                       {{0.25}, {0.1}}};
+    inputLayer->setWeights(w);
+    layer1->setBias(std::vector<double>{0.8, 0.3, 0.2});
+    std::vector<std::vector<nn::abs::Connection>> w2 = {{{0.2}, {0.6}, {1.0},},
+                                                        {{0.4}, {0.8}, {1.2}}};
 
-        layer1->setWeights(w2);
-        layer2->setBias(std::vector<double>{-1.2, -0.1}
-        );
+    layer1->setWeights(w2);
+    layer2->setBias(std::vector<double>{-1.2, -0.1}
+    );
 
-        std::vector<double> inputs = {0.5, 0.25};
-        inputLayer->setValues(inputs);
-        std::vector<double> resultCalc = layer2->calculate();
-        std::vector<double> resultRight = {130321.0 / 3025.0, 48.450036730945811};
+    std::vector<double> inputs = {0.5, 0.25};
+    inputLayer->setValues(inputs);
+    std::vector<double> resultCalc = layer2->calculate();
+    std::vector<double> resultRight = {130321.0 / 3025.0, 48.450036730945811};
 
-        ASSERT_EQ(resultCalc.size(), layer2->getSize());
-        ASSERT_EQ(resultCalc.size(), resultRight.size());
+    ASSERT_EQ(resultCalc.size(), layer2->getSize());
+    ASSERT_EQ(resultCalc.size(), resultRight.size());
 
-        for (int i = 0; i < resultRight.size(); i++)
-            ASSERT_EQ(resultCalc[i], resultRight[i]) << j;
-    }
+    for (int i = 0; i < resultRight.size(); i++)
+        ASSERT_EQ(resultCalc[i], resultRight[i]);
 }
 
 TEST_PF(Sycl, Layer, SetWeightsWithMap_WillWeightsBeSetCorrectly)
@@ -385,7 +389,5 @@ TEST_PF(Sycl, Layer, SetWeightsWithMap_WillWeightsBeSetCorrectly)
                                                {layer1->getNeuron(2).get(), 12}}});
     for (int i = 0; i < layer0->getSize(); i++)
         for (int j = 0; j < layer1->getSize(); j++)
-//                ASSERT_EQ(layer0->getNeuron(i)->getConnectionNextLayer(layer1->getNeuron(j).get())->w, i * 10 + j) << "with k = " << k;
-            std::cout << layer0->getNeuron(i)->getConnectionNextLayer(layer1->getNeuron(j).get())->w << " == "
-                      << i * 10 + j << std::endl;
+            ASSERT_EQ(layer0->getNeuron(i)->getConnectionNextLayer(layer1->getNeuron(j).get())->w, i * 10 + j);
 }
