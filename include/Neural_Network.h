@@ -8,10 +8,10 @@
 #include "Network.h"
 #include "Activations.h"
 #include "LossFunctions.h"
+#include "Backpropagator.h"
 
-namespace nn
-{
-    double derivative(double x, double dx, std::function<double(double)> func);
-}
+#ifdef NEURONAL_NETWORK_USE_SYCL
+#include "sycl/Layer.h"
+#endif
 
 #endif //NEURONAL_NETWORK_NEURAL_NETWORK_H

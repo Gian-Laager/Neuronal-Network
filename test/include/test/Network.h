@@ -1,7 +1,6 @@
 #ifndef NEURONAL_NETWORK_TEST_NETWORK_H
 #define NEURONAL_NETWORK_TEST_NETWORK_H
 
-#define MessureTimeNeededToCalculate
 
 #include "pch.h"
 #include "Neural_Network.h"

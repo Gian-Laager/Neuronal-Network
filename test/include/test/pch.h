@@ -3,6 +3,6 @@
 
 #include "gtest/gtest.h"
 
-//#include "Neural_Network.h"
+#define MessureTimeNeededToCalculate
 
 #endif //NEURONAL_NETWORK_TEST_PCH_H
